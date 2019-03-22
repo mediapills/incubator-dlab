@@ -44,6 +44,9 @@ AUTHOR_EMAIL = 'andrew.yatskovets@gmail.com'
 
 packages = find_packages()
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 # Version info -- read without importing
 _locals = {}
 with open("version.py") as fp:
@@ -61,4 +64,5 @@ setup(
     license="Apache-2.0",
     packages=packages,
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
+    install_requires=requirements,
 )
