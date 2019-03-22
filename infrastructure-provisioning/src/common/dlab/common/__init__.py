@@ -21,7 +21,7 @@
 
 import configuration
 import logger
-import fabric
+import shell
 import exception
 
 # from .configuration import get
