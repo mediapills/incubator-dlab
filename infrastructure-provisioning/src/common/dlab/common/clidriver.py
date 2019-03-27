@@ -27,7 +27,7 @@ LOG_FORMAT = (
 
 
 def main():
-    print "OK"
+    print "TODO"
     # driver = create_clidriver()
     # rc = driver.main()
     # HISTORY_RECORDER.record('CLI_RC', rc, 'CLI')

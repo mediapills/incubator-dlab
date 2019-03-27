@@ -20,12 +20,11 @@
 # ******************************************************************************
 
 import abc
-
-# compatible with Python 2 *and* 3:
-ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
+import six
 
 
-class BaseUseRepository(ABC):
+@six.add_metaclass(abc.ABCMeta)
+class BaseUseRepository:
     @abc.abstractmethod
     def find_one(self, key):
         pass

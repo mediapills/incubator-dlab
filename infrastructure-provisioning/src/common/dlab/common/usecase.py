@@ -20,15 +20,11 @@
 # ******************************************************************************
 
 import abc
-
-# compatible with Python 2 *and* 3:
-ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
-
-ACTION_DEPLOY = 'deploy'
-ACTION_PROVISION = 'provision'
+import six
 
 
-class BaseUseCase(ABC):
+@six.add_metaclass(abc.ABCMeta)
+class BaseUseCase:
     @abc.abstractmethod
     def validate(self):
         pass
@@ -38,9 +34,11 @@ class BaseUseCase(ABC):
         pass
 
 
-class BaseUseDeploy(BaseUseCase, metaclass=ABC):
+@six.add_metaclass(abc.ABCMeta)
+class BaseUseDeploy(BaseUseCase):
     pass
 
 
-class BaseUseProvision(BaseUseCase, metaclass=ABC):
+@six.add_metaclass(abc.ABCMeta)
+class BaseUseProvision(BaseUseCase):
     pass
