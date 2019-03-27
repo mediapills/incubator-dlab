@@ -19,10 +19,28 @@
 #
 # ******************************************************************************
 
-import clidriver
-import configuration
-import exception
-import logger
-import repository
-import shell
-import usecase
+import abc
+
+# compatible with Python 2 *and* 3:
+ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
+
+ACTION_DEPLOY = 'deploy'
+ACTION_PROVISION = 'provision'
+
+
+class BaseUseCase(ABC):
+    @abc.abstractmethod
+    def validate(self):
+        pass
+
+    @abc.abstractmethod
+    def execute(self):
+        pass
+
+
+class BaseUseDeploy(BaseUseCase, metaclass=ABC):
+    pass
+
+
+class BaseUseProvision(BaseUseCase, metaclass=ABC):
+    pass

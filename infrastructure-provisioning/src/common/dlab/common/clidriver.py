@@ -19,10 +19,17 @@
 #
 # ******************************************************************************
 
-import clidriver
-import configuration
-import exception
-import logger
-import repository
-import shell
-import usecase
+import logging
+
+LOG = logging.getLogger('dlab.common.clidriver')
+LOG_FORMAT = (
+    '%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
+
+
+def main():
+    print "OK"
+    # driver = create_clidriver()
+    # rc = driver.main()
+    # HISTORY_RECORDER.record('CLI_RC', rc, 'CLI')
+
+    # return rc

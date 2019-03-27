@@ -19,10 +19,17 @@
 #
 # ******************************************************************************
 
-import clidriver
-import configuration
-import exception
-import logger
-import repository
-import shell
-import usecase
+import abc
+
+# compatible with Python 2 *and* 3:
+ABC = abc.ABCMeta('ABC', (object,), {'__slots__': ()})
+
+
+class BaseUseRepository(ABC):
+    @abc.abstractmethod
+    def find_one(self, key):
+        pass
+
+    @abc.abstractmethod
+    def find_all(self, key):
+        pass
