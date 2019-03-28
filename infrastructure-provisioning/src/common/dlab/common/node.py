@@ -59,8 +59,8 @@ class SSNNode(BaseProcess):
 @six.add_metaclass(abc.ABCMeta)
 class EDGENode(BaseProcess, BaseService):
     pass
-    # get_status() -> do we need this ?
-    # recreate() -> ?upgrade? what cases
+    # get_status() -> do we need this ? node status + all related nodes status
+    # recreate() -> ?upgrade? what cases / if node goes down during creation
     # reupload_key() -> need to be removed in SSHKeysManager
 
 
@@ -68,8 +68,8 @@ class EDGENode(BaseProcess, BaseService):
 class NotebookNode(BaseProcess, BaseService, BaseLibrariesManager):
     pass
     # Main function for configuring notebook server after deploying DataEngine service ?is it deploy?
-    # configure() -> ?what is inside?
-    # git_creds() -> needs to be removed in GITManaget
+    # configure() -> ?what is inside? join notebook and cluster ! rename
+    # git_creds() -> needs to be removed in GITManaget ??? need to be investigated
 
 
 @six.add_metaclass(abc.ABCMeta)
