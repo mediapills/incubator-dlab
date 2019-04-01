@@ -19,5 +19,5 @@
 #
 # ******************************************************************************
 
-import common
-import dlab
+import controller
+import usecase

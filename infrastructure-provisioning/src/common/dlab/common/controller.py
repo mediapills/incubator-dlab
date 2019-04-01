@@ -19,5 +19,36 @@
 #
 # ******************************************************************************
 
-import common
-import dlab
+import abc
+import six
+from exception import DLabException
+from usecase import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
+
+
+@six.add_metaclass(abc.ABCMeta)
+class BaseController:
+    @abc.abstractmethod
+    def _get_ssn_deploy_uc(self):
+        pass
+
+    @abc.abstractmethod
+    def _get_ssn_provision_uc(self):
+        pass
+
+    @abc.abstractmethod
+    def ssn_run(self):
+        uc = self._get_ssn_deploy_uc()  # type:  BaseUseCaseSSNDeploy
+        try:
+            uc.execute()
+        except DLabException:
+            uc.rollback()  # TODO is it needs to be here ?
+
+        uc = self._get_ssn_provision_uc()  # type:  BaseUseCaseSSNProvision
+        try:
+            uc.execute()
+        except DLabException:
+            uc.rollback()  # TODO is it needs to be here ?
+
+    @abc.abstractmethod
+    def ssn_terminate(self):
+        pass

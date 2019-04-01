@@ -64,3 +64,57 @@ class BaseUseCaseInstallLibraries(BaseUseCase):
 class BaseUseCaseShowLibraries(BaseUseCase):
     pass
 
+
+@six.add_metaclass(abc.ABCMeta)
+class BaseUseCaseSSNDeploy(BaseUseCaseDeploy):
+    @abc.abstractmethod
+    def _setup_infrastructure(self):
+        pass
+
+    def _configure_network(self):
+        pass
+
+    def _create_instance(self):
+        pass
+
+    def execute(self):
+        self._setup_infrastructure()
+        self._configure_network()
+        self._create_instance()
+
+
+@six.add_metaclass(abc.ABCMeta)
+class BaseUseCaseSSNProvision(BaseUseCaseProvision):
+
+    @abc.abstractmethod
+    def _install_db(self):
+        pass
+
+    @abc.abstractmethod
+    def _create_db(self):
+        pass
+
+    @abc.abstractmethod
+    def _setup_db(self):
+        self._install_db()
+        self._create_db()
+
+    @abc.abstractmethod
+    def _build_ui(self):
+        pass
+
+    @abc.abstractmethod
+    def _start_ui(self):
+        pass
+
+    def execute(self):
+        # TODO discuss other steps
+        # step 1
+        # step 2
+        # step 3
+        # step 4
+        # step 5
+        self._setup_db()
+        # step 7
+        self._build_ui()
+        self._start_ui()
