@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # *****************************************************************************
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -21,20 +19,20 @@
 #
 # ******************************************************************************
 
-import sys
-import os
-
-if os.environ.get('LC_CTYPE', '') == 'UTF-8':
-    os.environ['LC_CTYPE'] = 'en_US.UTF-8'
-
-from dlab.common import clidriver
+import abc
+import six
 
 
-def main():
-    return clidriver.main()
+@six.add_metaclass(abc.ABCMeta)
+class BaseResource:
+    @abc.abstractmethod
+    def exists(self):
+        pass
 
-if __name__ == '__main__':
-    sys.exit(main())
+    @abc.abstractmethod
+    def create(self):
+        pass
 
-
-# generate cli controller
+    @abc.abstractmethod
+    def delete(self):
+        pass

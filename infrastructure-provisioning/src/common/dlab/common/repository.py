@@ -21,14 +21,46 @@
 
 import abc
 import six
+import os
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseUseRepository:
+class BaseRepository:
     @abc.abstractmethod
-    def find_one(self, key):
+    def _find_one(self, key):
         pass
 
     @abc.abstractmethod
-    def find_all(self, key):
+    def _find_all(self):
         pass
+
+    def find(self, key=None):
+        return self._find_one(key) if key is None else self._find_all()
+
+
+class FileRepository(BaseRepository):
+    def __init__(self, filename):
+        self._file = filename
+        self._data = []
+
+    def _get_data(self):
+        if self._data is None:
+            print "load data"
+
+        return self._data
+
+    def _find_one(self, key):
+        data = self._get_data()
+        return data[key]
+
+    def _find_all(self):
+        return self._get_data()
+
+
+class EnvironRepository(BaseRepository):
+    def _find_one(self, key):
+        return os.environ[key]
+
+    def _find_all(self):
+        return os.environ
+

@@ -21,6 +21,7 @@
 
 import logging
 
+
 LOG = logging.getLogger('dlab.common.clidriver')
 LOG_FORMAT = (
     '%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
