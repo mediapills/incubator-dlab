@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-import configuration
+import clidriver
 import controllers
 import exceptions
 import logger
@@ -30,3 +30,7 @@ import resources
 import shell
 import usecases
 import validators
+
+__all__ = ['CONTROLLERS']
+
+CONTROLLERS = dict()

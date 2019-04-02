@@ -19,16 +19,32 @@
 #
 # ******************************************************************************
 
+from dlab.common.usecases import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
+from dlab.common.exceptions import DLabException
 
-from usecases import AWSUseCaseSSNDeploy, AWSUseCaseSSNProvision
-from dlab.common.controllers import BaseController
+
+class GCPUseCaseSSNDeploy(BaseUseCaseSSNDeploy):
+
+    def _setup_infrastructure(self):
+        raise DLabException('Needs to be implemented')
+
+    def _configure_network(self):
+        raise DLabException('Needs to be implemented')
+
+    def _create_instance(self):
+        raise DLabException('Needs to be implemented')
 
 
-class AWSController(BaseController):
-    PROVIDER = 'aws'
+class GCPUseCaseSSNProvision(BaseUseCaseSSNProvision):
 
-    def _get_ssn_deploy_uc(self):
-        return AWSUseCaseSSNDeploy()
+    def _install_db(self):
+        raise DLabException('Needs to be implemented')
 
-    def _get_ssn_provision_uc(self):
-        return AWSUseCaseSSNProvision()
+    def _create_db(self):
+        raise DLabException('Needs to be implemented')
+
+    def _build_ui(self):
+        raise DLabException('Needs to be implemented')
+
+    def _start_ui(self):
+        raise DLabException('Needs to be implemented')

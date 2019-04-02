@@ -19,16 +19,5 @@
 #
 # ******************************************************************************
 
-
-from usecases import AWSUseCaseSSNDeploy, AWSUseCaseSSNProvision
-from dlab.common.controllers import BaseController
-
-
-class AWSController(BaseController):
-    PROVIDER = 'aws'
-
-    def _get_ssn_deploy_uc(self):
-        return AWSUseCaseSSNDeploy()
-
-    def _get_ssn_provision_uc(self):
-        return AWSUseCaseSSNProvision()
+import controllers
+import usecases

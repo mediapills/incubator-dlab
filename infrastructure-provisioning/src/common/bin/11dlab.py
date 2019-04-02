@@ -21,18 +21,24 @@
 #
 # ******************************************************************************
 
+
 import sys
 import os
+
+from dlab.common.clidriver import CLIDriver
+from dlab.services import aws, gcp
 
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
 
 
 def main():
-    # step 0 init logger
-    # logger =
-    # step 1 get controller
-    # ctl = <- logger
+    driver = CLIDriver()
+    driver.register(aws.controllers.AWSController)
+    driver.register(gcp.controllers.GCPController)
+
+    controller = driver.controller
+
     # step 2 get action
     # step 3 run action
     # ctl.action()
@@ -41,6 +47,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-
-
-# generate cli controller

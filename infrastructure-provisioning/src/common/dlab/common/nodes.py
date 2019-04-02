@@ -30,7 +30,7 @@ from dlab.common.exceptions import DLabException
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseProcessActions:
+class BaseProcessManager:
 
     ACTION_RUN = 'run'
     ACTION_TERMINATE = 'terminate'
@@ -50,7 +50,7 @@ class BaseProcessActions:
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseServiceActions:
+class BaseServiceManager:
 
     ACTION_START = 'start'
     ACTION_STOP = 'stop'
@@ -70,7 +70,7 @@ class BaseServiceActions:
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseLibrariesManagerActions:
+class BaseLibrariesManager:
 
     ACTION_INSTALL_LIBRARIES = 'install_libraries'
     ACTION_SHOW_LIBRARIES = 'show_libraries'
@@ -119,16 +119,16 @@ class Node:
 
 
 @six.add_metaclass(abc.ABCMeta)
-class SSNNode(Node, BaseProcessActions):
+class SSNNode(Node, BaseProcessManager):
 
     NODE_TYPE = 'ssn'
 
 
 @six.add_metaclass(abc.ABCMeta)
-class EDGENode(Node, BaseProcessActions, BaseServiceActions):
+class EDGENode(Node, BaseProcessManager, BaseServiceManager):
 
-    ACTIONS = BaseProcessActions.ACTIONS\
-              + BaseServiceActions.ACTIONS
+    ACTIONS = BaseProcessManager.ACTIONS\
+              + BaseServiceManager.ACTIONS
 
     NODE_TYPE = 'edge'
 
@@ -138,10 +138,10 @@ class EDGENode(Node, BaseProcessActions, BaseServiceActions):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class NotebookNode(Node, BaseProcessActions, BaseServiceActions, BaseLibrariesManagerActions):
-    ACTIONS = BaseProcessActions.ACTIONS\
-              + BaseServiceActions.ACTIONS\
-              + BaseLibrariesManagerActions.ACTIONS
+class NotebookNode(Node, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
+    ACTIONS = BaseProcessManager.ACTIONS\
+              + BaseServiceManager.ACTIONS\
+              + BaseLibrariesManager.ACTIONS
 
     NODE_TYPE = 'notebook'
 
@@ -151,17 +151,17 @@ class NotebookNode(Node, BaseProcessActions, BaseServiceActions, BaseLibrariesMa
 
 
 @six.add_metaclass(abc.ABCMeta)
-class DataEngineNode(Node, BaseProcessActions, BaseServiceActions, BaseLibrariesManagerActions):
-    ACTIONS = BaseProcessActions.ACTIONS\
-              + BaseServiceActions.ACTIONS\
-              + BaseLibrariesManagerActions.ACTIONS
+class DataEngineNode(Node, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
+    ACTIONS = BaseProcessManager.ACTIONS\
+              + BaseServiceManager.ACTIONS\
+              + BaseLibrariesManager.ACTIONS
 
     NODE_TYPE = 'dataengine'
 
 
 @six.add_metaclass(abc.ABCMeta)
-class DataEngineServerNode(Node, BaseProcessActions, BaseLibrariesManagerActions):
-    ACTIONS = BaseProcessActions.ACTIONS\
-              + BaseLibrariesManagerActions.ACTIONS
+class DataEngineServerNode(Node, BaseProcessManager, BaseLibrariesManager):
+    ACTIONS = BaseProcessManager.ACTIONS\
+              + BaseLibrariesManager.ACTIONS
 
     NODE_TYPE = 'dataengine'

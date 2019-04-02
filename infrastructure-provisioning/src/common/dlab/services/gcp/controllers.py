@@ -20,15 +20,15 @@
 # ******************************************************************************
 
 
-from usecases import AWSUseCaseSSNDeploy, AWSUseCaseSSNProvision
+from usecases import GCPUseCaseSSNDeploy, GCPUseCaseSSNProvision
 from dlab.common.controllers import BaseController
 
 
-class AWSController(BaseController):
-    PROVIDER = 'aws'
+class GCPController(BaseController):
+    PROVIDER = 'gcp'
 
     def _get_ssn_deploy_uc(self):
-        return AWSUseCaseSSNDeploy()
+        return GCPUseCaseSSNDeploy()
 
     def _get_ssn_provision_uc(self):
-        return AWSUseCaseSSNProvision()
+        return GCPUseCaseSSNProvision()
