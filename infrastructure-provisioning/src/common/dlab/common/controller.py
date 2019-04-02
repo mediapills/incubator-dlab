@@ -218,47 +218,61 @@ class BaseController:
         },
         '--gcp_service_account_path': {
             'default': '',
-            'help': 'The project ID in Google Cloud Platform'},
+            'help': 'The project ID in Google Cloud Platform'
+        },
         '--dlab_id': {
             'default':"'user:user:tag'",
-            'help': 'Column name in report file that contains dlab id tag'},
+            'help': 'Column name in report file that contains dlab id tag'
+        },
         '--usage_date': {
             'default': 'UsageStartDate',
-            'help': 'Column name in report file that contains usage date tag'},
+            'help': 'Column name in report file that contains usage date tag'
+        },
         '--product': {
             'default': 'ProductName',
-            'help': 'Column name in report file that contains product name tag'},
+            'help': 'Column name in report file that contains product name tag'
+        },
         '--usage_type': {
             'default': 'UsageType',
-            'help': 'Column name in report file that contains usage type tag'},
+            'help': 'Column name in report file that contains usage type tag'
+        },
         '--usage': {
             'default': 'UsageQuantity',
-            'help': 'Column name in report file that contains usage tag'},
+            'help': 'Column name in report file that contains usage tag'
+        },
         '--cost': {
             'default': 'BlendedCost',
-            'help': 'Column name in report file that contains cost tag'},
+            'help': 'Column name in report file that contains cost tag'
+        },
         '--resource_id': {
             'default': 'ResourceId',
-            'help': 'Column name in report file that contains dlab resource id tag'},
+            'help': 'Column name in report file that contains dlab resource id tag'
+        },
         '--ldap_hostname': {
             'default': '',
-            'help': 'Ldap instance hostname'},
+            'help': 'Ldap instance hostname'
+        },
         '--ldap_dn': {
             'default': '',
-            'help': 'Ldap distinguished name (dc=example,dc=com)'},
+            'help': 'Ldap distinguished name (dc=example,dc=com)'
+        },
         '--ldap_ou': {
             'default': '',
-            'help': 'Ldap organisation unit (ou=People)'},
+            'help': 'Ldap organisation unit (ou=People)'
+        },
         '--ldap_service_username': {
             'default': '',
-            'help': 'Ldap admin user name'},
+            'help': 'Ldap admin user name'
+        },
         '--ldap_service_password': {
             'default': '',
-            'help': 'Ldap password for admin user'},
+            'help': 'Ldap password for admin user'
+        },
         '--tags': {
             'default': 'Operation,ItemDescription',
-            'help': 'Column name in report file that contains tags'},
-    },
+            'help': 'Column name in report file that contains tags'
+        },
+    }
 #        '--action': { 'required'=True, 'type': str, 'default': '',
 #                        'choices':['build', 'deploy', 'create', 'terminate'],
 #                        'help': 'Available options: build, deploy, create, terminate'},
