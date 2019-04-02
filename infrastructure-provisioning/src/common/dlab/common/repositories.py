@@ -27,18 +27,19 @@ import os
 @six.add_metaclass(abc.ABCMeta)
 class BaseRepository:
     @abc.abstractmethod
-    def _find_one(self, key):
+    def find_one(self, key):
         pass
 
     @abc.abstractmethod
-    def _find_all(self):
+    def find_all(self):
         pass
 
     def find(self, key=None):
-        return self._find_one(key) if key is None else self._find_all()
+        return self.find_one(key) if key is None else self.find_all()
 
 
 class FileRepository(BaseRepository):
+
     def __init__(self, filename):
         self._file = filename
         self._data = []
@@ -49,18 +50,38 @@ class FileRepository(BaseRepository):
 
         return self._data
 
-    def _find_one(self, key):
+    def find_one(self, key):
         data = self._get_data()
         return data[key]
 
-    def _find_all(self):
+    def find_all(self):
         return self._get_data()
 
 
 class EnvironRepository(BaseRepository):
-    def _find_one(self, key):
+
+    def find_one(self, key):
         return os.environ[key]
 
-    def _find_all(self):
+    def find_all(self):
         return os.environ
 
+
+class JSONContentRepository(BaseRepository):
+
+    def find_one(self, key):
+        pass
+
+    def find_all(self):
+        pass
+
+
+class SQLiteRepository(BaseRepository):
+    def __init__(self, filename):
+        self.filename = filename
+
+    def find_one(self, key):
+        pass
+
+    def find_all(self):
+        pass

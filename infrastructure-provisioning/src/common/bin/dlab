@@ -27,8 +27,17 @@ import os
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
 
+
 def main():
-    return clidriver.main()
+    # step 0 init logger
+    # logger =
+    # step 1 get controller
+    # ctl = <- logger
+    # step 2 get action
+    # step 3 run action
+    # ctl.action()
+    pass
+
 
 if __name__ == '__main__':
     sys.exit(main())

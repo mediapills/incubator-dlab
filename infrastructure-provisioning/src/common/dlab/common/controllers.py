@@ -22,13 +22,13 @@
 import abc
 import argparse
 import six
-from exception import DLabException
-from usecase import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
+from exceptions import DLabException
+from usecases import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseController:
-    CLI_ARGUMENTS = {
+    BASE_ARGUMENTS = {
         '--conf_service_base_name': {
             'help': 'unique name for DLab environment',
         },
@@ -221,7 +221,7 @@ class BaseController:
             'help': 'The project ID in Google Cloud Platform'
         },
         '--dlab_id': {
-            'default':"'user:user:tag'",
+            'default': "'user:user:tag'",
             'help': 'Column name in report file that contains dlab id tag'
         },
         '--usage_date': {
@@ -281,11 +281,11 @@ class BaseController:
     def __init__(self):
         self._parser = None
 
-
     def _add_argument(self, name, default, help=''):
+        pass
 
     def _get_ssn_argument_parser(self):
-        if self._parser is None
+        if self._parser is None:
             self._parser = argparse.ArgumentParser()
             # TODO full fill arguments
         return self._parser

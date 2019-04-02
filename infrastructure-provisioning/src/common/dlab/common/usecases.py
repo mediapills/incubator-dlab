@@ -94,7 +94,6 @@ class BaseUseCaseSSNProvision(BaseUseCaseProvision):
     def _create_db(self):
         pass
 
-    @abc.abstractmethod
     def _setup_db(self):
         self._install_db()
         self._create_db()

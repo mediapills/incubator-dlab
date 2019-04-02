@@ -19,15 +19,14 @@
 #
 # ******************************************************************************
 
-import clidriver
 import configuration
-import controller
-import exception
+import controllers
+import exceptions
 import logger
-import manager
-import node
-import repository
-import resource
+import managers
+import nodes
+import repositories
+import resources
 import shell
-import usecase
-import validator
+import usecases
+import validators
