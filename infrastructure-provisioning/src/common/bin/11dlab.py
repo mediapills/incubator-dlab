@@ -24,20 +24,44 @@
 
 import sys
 import os
+import logging
+import argparse
 
-from dlab.common.clidriver import CLIDriver
-from dlab.services import aws, gcp
+from dlab.common import CONTROLLERS
+from dlab.common.controllers import BaseController
 
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
 
 
-def main():
-    driver = CLIDriver()
-    driver.register(aws.controllers.AWSController)
-    driver.register(gcp.controllers.GCPController)
+def get_logger():
+    logger = logging
+    logger.basicConfig(level=logging.DEBUG)
 
-    controller = driver.controller
+    return logger
+
+
+def get_option():
+    return 'aws12'
+
+
+def get_controller():
+    choices = []
+    option = get_option()
+    for name in CONTROLLERS:  # type: BaseController
+        if name == option:
+            cls = CONTROLLERS[name]
+            return cls(get_logger())
+        choices.append(name)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--provider', choices=choices)
+    parser.parse_args(['--provider', option])
+
+
+def main():
+    controller = get_controller()
+    node = controller.get_node
 
     # step 2 get action
     # step 3 run action

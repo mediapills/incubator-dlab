@@ -22,8 +22,10 @@
 
 from usecases import AWSUseCaseSSNDeploy, AWSUseCaseSSNProvision
 from dlab.common.controllers import BaseController
+from dlab.common import controllers
 
 
+@controllers.register
 class AWSController(BaseController):
     PROVIDER = 'aws'
 

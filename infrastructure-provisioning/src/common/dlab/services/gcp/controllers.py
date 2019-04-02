@@ -22,8 +22,10 @@
 
 from usecases import GCPUseCaseSSNDeploy, GCPUseCaseSSNProvision
 from dlab.common.controllers import BaseController
+from dlab.common import controllers
 
 
+@controllers.register
 class GCPController(BaseController):
     PROVIDER = 'gcp'
 

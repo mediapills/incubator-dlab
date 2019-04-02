@@ -31,6 +31,7 @@ import shell
 import usecases
 import validators
 
-__all__ = ['CONTROLLERS']
+__all__ = ['CONTROLLERS', 'NODES']
 
 CONTROLLERS = dict()
+NODES = dict()

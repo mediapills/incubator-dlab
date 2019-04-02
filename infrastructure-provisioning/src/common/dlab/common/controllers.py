@@ -22,8 +22,18 @@
 import abc
 import argparse
 import six
+import dlab
+
 from exceptions import DLabException
 from usecases import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
+
+
+# TODO Nodes deployment versions nodes with new and old deployment procedures
+
+def register(cls):
+    """Register a class as a plug-in"""
+    dlab.common.CONTROLLERS[cls.provider()] = cls
+    return cls
 
 
 @six.add_metaclass(abc.ABCMeta)
