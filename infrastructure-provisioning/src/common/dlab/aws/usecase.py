@@ -19,3 +19,30 @@
 #
 # ******************************************************************************
 
+from dlab.common.usecase import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
+from dlab.common.exception import DLabException
+
+
+class AWSUseCaseSSNDeploy(BaseUseCaseSSNDeploy):
+    def _setup_infrastructure(self):
+        raise DLabException('Needs to be implemented')
+
+    def _configure_network(self):
+        raise DLabException('Needs to be implemented')
+
+    def _create_instance(self):
+        raise DLabException('Needs to be implemented')
+
+
+class AWSUseCaseSSNProvision(BaseUseCaseSSNProvision):
+    def _install_db(self):
+        raise DLabException('Needs to be implemented')
+
+    def _create_db(self):
+        raise DLabException('Needs to be implemented')
+
+    def _build_ui(self):
+        raise DLabException('Needs to be implemented')
+
+    def _start_ui(self):
+        raise DLabException('Needs to be implemented')

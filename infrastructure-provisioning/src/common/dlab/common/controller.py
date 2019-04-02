@@ -35,7 +35,6 @@ class BaseController:
     def _get_ssn_provision_uc(self):
         pass
 
-    @abc.abstractmethod
     def ssn_run(self):
         uc = self._get_ssn_deploy_uc()  # type:  BaseUseCaseSSNDeploy
         try:
@@ -49,6 +48,5 @@ class BaseController:
         except DLabException:
             uc.rollback()  # TODO is it needs to be here ?
 
-    @abc.abstractmethod
     def ssn_terminate(self):
         pass
