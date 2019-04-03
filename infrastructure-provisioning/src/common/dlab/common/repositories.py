@@ -27,6 +27,13 @@ import os
 from dlab.common.exceptions import DLabException
 
 
+# TODO: support python2 and python3
+if six.PY2:
+    import ConfigParser as configparser
+else:
+    import configparser
+
+
 @six.add_metaclass(abc.ABCMeta)
 class BaseRepository:
 
@@ -39,21 +46,56 @@ class BaseRepository:
         pass
 
 
-class FileRepository(BaseRepository):
+class ConfigRepository(BaseRepository):
+    VARIABLE_TEMPLATE = "{0}_{1}"
 
-    def __init__(self, filename):
-        self._file = filename
-        self._data = []
+    def __init__(self, absolute_path):
 
-    def _get_data(self):
-        if self._data is None:
-            raise DLabException('Needs to be implemented.')
+        self._data = {}
+        self._file_path = None
+        self.file_path = absolute_path
 
+    @property
+    def file_path(self):
+        return self._file_path
+
+    @file_path.setter
+    def file_path(self, file_path):
+        self._validate_file_path(file_path)
+        self._file_path = file_path
+        self._data = {}
+
+    @classmethod
+    def _validate_file_path(cls, file_path):
+
+        if not file_path:
+            raise DLabException('No path to file specified.')
+
+        if not os.path.isfile(file_path):
+            raise DLabException(
+                'Cant specify file with path {file_path}'.format(
+                    file_path=file_path
+                )
+            )
+
+    @property
+    def data(self):
+        if not self._data:
+            self._load_data()
         return self._data
+
+    def _load_data(self):
+        config = configparser.ConfigParser()
+        config.read(self.file_path)
+        for section in config.sections():
+            for option in config.options(section):
+                var = self.VARIABLE_TEMPLATE.format(section, option)
+                if var not in self._data.keys():
+                    self._data[var] = config.get(section, option)
 
     def find_one(self, key):
         data = self._get_data()
-        return data[key]
+        return data.get(key)
 
     def find_all(self):
         return self._get_data()
