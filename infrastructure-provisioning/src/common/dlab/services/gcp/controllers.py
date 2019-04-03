@@ -25,9 +25,8 @@ from dlab.common.controllers import BaseController
 from dlab.common import controllers
 
 
-@controllers.register
+@controllers.register('gcp')
 class GCPController(BaseController):
-    PROVIDER = 'gcp'
 
     def _get_ssn_deploy_uc(self):
         return GCPUseCaseSSNDeploy()

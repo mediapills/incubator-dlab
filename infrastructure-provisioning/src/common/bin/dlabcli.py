@@ -27,8 +27,7 @@ import os
 import logging
 import argparse
 
-from dlab.common import CONTROLLERS
-from dlab.common.controllers import BaseController
+from dlab.common.controllers import BaseController, controllers_list
 
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
@@ -48,9 +47,10 @@ def get_option():
 def get_controller():
     choices = []
     option = get_option()
-    for name in CONTROLLERS:  # type: BaseController
+    controllers = controllers_list()
+    for name in controllers:  # type: BaseController
         if name == option:
-            cls = CONTROLLERS[name]
+            cls = controllers[name]
             return cls(get_logger())
         choices.append(name)
 
@@ -60,7 +60,7 @@ def get_controller():
 
 
 def main():
-    # controller = get_controller()
+    controller = get_controller()
     # node = controller.get_node
 
     # step 2 get action

@@ -29,8 +29,3 @@ import resources
 import shell
 import usecases
 import validators
-
-__all__ = ['CONTROLLERS', 'NODES']
-
-CONTROLLERS = dict()
-NODES = dict()

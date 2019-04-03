@@ -22,38 +22,37 @@
 import abc
 import argparse
 import six
-import dlab
 
 from exceptions import DLabException
 from usecases import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
 
 
+CONTROLLERS = dict()
+
 # TODO Nodes deployment versions nodes with new and old deployment procedures
 
-def register(cls):
+
+def register(metaclass):
     """Register a class as a plug-in"""
-    dlab.common.CONTROLLERS[cls.provider()] = cls
-    return cls
+    def wrapper(cls):
+        CONTROLLERS[metaclass] = cls
+        return cls
+
+    return wrapper
+
+
+def controllers_list():
+    return CONTROLLERS
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseController:
-    PROVIDER = None
 
     def __init__(self, logger):
         self._parser = None
         logger.debug('Init controller "{name}".'.format(
             name=self.__class__.__name__
         ))
-
-    @classmethod
-    def provider(cls):
-        if cls.PROVIDER is None:
-            raise DLabException('Class "{name}" type needs to be defined'.format(
-                name=cls.__name__
-            ))
-
-        return cls.PROVIDER
 
     def _add_argument(self, name, default, help=''):
         pass
