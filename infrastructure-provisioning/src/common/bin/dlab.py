@@ -60,8 +60,8 @@ def get_controller():
 
 
 def main():
-    controller = get_controller()
-    node = controller.get_node
+    # controller = get_controller()
+    # node = controller.get_node
 
     # step 2 get action
     # step 3 run action

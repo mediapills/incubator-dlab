@@ -19,7 +19,6 @@
 #
 # ******************************************************************************
 
-import clidriver
 import controllers
 import exceptions
 import logger

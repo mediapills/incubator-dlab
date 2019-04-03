@@ -113,7 +113,7 @@ if True:
             'default': 'dlab',
             'help': 'The name of user tag'
         },
-        '--aws_ssn_instance_size': { # TODO replace on instance type
+        '--aws_ssn_instance_size': {  # TODO replace on instance type
             'default': 't2.large',
             'help': 'The SSN instance shape'
         },

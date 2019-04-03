@@ -96,10 +96,15 @@ class Node:
 
     ACTIONS = []
 
+    LC_MSG_UNKNOWN_CONSTANT = 'Constant "{name}" needs to be defined'
+    LC_MSG_WRONG_ACTION = '{clsname} does not support action "{action}"'
+
     @classmethod
     def get_type(cls):
         if cls.NODE_TYPE is None:
-            raise DLabException("Constant 'NODE_TYPE' needs to be defined")
+            raise DLabException(cls.LC_MSG_UNKNOWN_CONSTANT.format(
+                name='NODE_TYPE'
+            ))
 
         return cls.NODE_TYPE
 
@@ -109,7 +114,7 @@ class Node:
 
     def execute(self, action):
         if not self.has_action(action):
-            raise DLabException("{clsname} does not support action {action}".format(
+            raise DLabException(self.LC_MSG_WRONG_ACTION.format(
                 clsname=self.__class__.__name__,
                 action=action
             ))
