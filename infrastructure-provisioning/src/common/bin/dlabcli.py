@@ -27,13 +27,14 @@ import os
 import logging
 import argparse
 
-from dlab.common.controllers import BaseController, controllers_list
+from dlab.common.controllers import controllers, BaseController
 
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
 
 
 def get_logger():
+
     logger = logging
     logger.basicConfig(level=logging.DEBUG)
 
@@ -41,19 +42,18 @@ def get_logger():
 
 
 def get_option():
-    return 'aws12'
+    
+    return 'aws'
 
 
 def get_controller():
-    choices = []
-    option = get_option()
-    controllers = controllers_list()
-    for name in controllers:  # type: BaseController
-        if name == option:
-            cls = controllers[name]
-            return cls(get_logger())
-        choices.append(name)
 
+    option = get_option()
+    ctl = controllers.find_one(option)
+    if ctl:
+        return ctl(get_logger())  # type: BaseController
+
+    choices = controllers.find_all().keys()
     parser = argparse.ArgumentParser()
     parser.add_argument('--provider', choices=choices)
     parser.parse_args(['--provider', option])
@@ -61,12 +61,9 @@ def get_controller():
 
 def main():
     controller = get_controller()
-    # node = controller.get_node
+    node = controller.current_node
 
-    # step 2 get action
     # step 3 run action
-    # ctl.action()
-    pass
 
 
 if __name__ == '__main__':

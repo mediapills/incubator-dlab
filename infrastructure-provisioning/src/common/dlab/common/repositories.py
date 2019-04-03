@@ -46,6 +46,21 @@ class BaseRepository:
         pass
 
 
+class ArrayRepository(BaseRepository):
+
+    def __init__(self, data={}):
+        self._data = data
+
+    def append(self, key, value):
+        self._data[key] = value
+
+    def find_one(self, key):
+        return self._data.get(key)
+
+    def find_all(self):
+        return self._data
+
+
 class ConfigRepository(BaseRepository):
     VARIABLE_TEMPLATE = "{0}_{1}"
 
@@ -65,15 +80,15 @@ class ConfigRepository(BaseRepository):
         self._file_path = file_path
         self._data = {}
 
-    @classmethod
-    def _validate_file_path(cls, file_path):
+    @staticmethod
+    def _validate_file_path(file_path):
 
         if not file_path:
-            raise DLabException('No path to file specified.')
+            raise DLabException('No file location specified.')
 
         if not os.path.isfile(file_path):
             raise DLabException(
-                'Cant specify file with path {file_path}'.format(
+                'There is no file with path {file_path}'.format(
                     file_path=file_path
                 )
             )

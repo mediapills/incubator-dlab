@@ -19,70 +19,91 @@
 #
 # ******************************************************************************
 
-import abc
-import argparse
-import six
-
-from exceptions import DLabException
-from usecases import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
-
-
-CONTROLLERS = dict()
-
 # TODO Nodes deployment versions nodes with new and old deployment procedures
 
 
-def register(metaclass):
+import abc
+import six
+import sys
+import argparse
+import nodes
+from repositories import ArrayRepository
+
+
+controllers = ArrayRepository()
+
+
+# TODO code duplication for nodes
+def register(key):
     """Register a class as a plug-in"""
     def wrapper(cls):
-        CONTROLLERS[metaclass] = cls
+        # TODO show error if key already exists
+        controllers.append(key, cls)
+        setattr(cls, '_type', key)
         return cls
 
     return wrapper
 
 
-def controllers_list():
-    return CONTROLLERS
-
-
 @six.add_metaclass(abc.ABCMeta)
 class BaseController:
+    LC_NODE_CLI_HELP = 'TODO: Add help here'
+
+    NODES = {
+        nodes.SSNNode.NODE_TYPE: 'ssn_node',
+        nodes.EDGENode.NODE_TYPE: 'edge_node',
+        nodes.NotebookNode.NODE_TYPE: 'notebook_node',
+        nodes.DataEngineNode.NODE_TYPE: 'data_engine_node',
+        nodes.DataEngineServerNode.NODE_TYPE: 'data_engine_server_node',
+    }
 
     def __init__(self, logger):
-        self._parser = None
+        self._type = None
+        self._logger = logger
         logger.debug('Init controller "{name}".'.format(
             name=self.__class__.__name__
         ))
 
-    def _add_argument(self, name, default, help=''):
-        pass
+    @staticmethod
+    def _get_argument():
+        return sys.argv[1]
 
-    def _get_ssn_argument_parser(self):
-        if self._parser is None:
-            self._parser = argparse.ArgumentParser()
-            # TODO full fill arguments
-        return self._parser
+    @property
+    def current_node(self):
+        option = self._get_argument()
+        if option in self.NODES.keys():
+            attr = getattr(self, self.NODES[option])
+            return attr()
 
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            'node type',
+            choices=self.NODES.keys(),
+            help=self.LC_NODE_CLI_HELP,
+        )
+        parser.parse_args([option])
+
+    @property
     @abc.abstractmethod
-    def _get_ssn_deploy_uc(self):
+    def ssn_node(self):
         pass
 
+    @property
     @abc.abstractmethod
-    def _get_ssn_provision_uc(self):
+    def edge_node(self):
         pass
 
-    def ssn_run(self):
-        uc = self._get_ssn_deploy_uc()  # type:  BaseUseCaseSSNDeploy
-        try:
-            uc.execute()
-        except DLabException:
-            uc.rollback()  # TODO is it needs to be here ?
+    @property
+    @abc.abstractmethod
+    def notebook_node(self):
+        pass
 
-        uc = self._get_ssn_provision_uc()  # type:  BaseUseCaseSSNProvision
-        try:
-            uc.execute()
-        except DLabException:
-            uc.rollback()  # TODO is it needs to be here ?
+    @property
+    @abc.abstractmethod
+    def data_engine_node(self):
+        pass
 
-    def ssn_terminate(self):
+    @property
+    @abc.abstractmethod
+    def data_engine_server_node(self):
         pass

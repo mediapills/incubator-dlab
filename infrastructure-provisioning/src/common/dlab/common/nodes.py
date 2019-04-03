@@ -25,7 +25,6 @@
 import abc
 import six
 
-
 from dlab.common.exceptions import DLabException
 
 
@@ -169,4 +168,34 @@ class DataEngineServerNode(Node, BaseProcessManager, BaseLibrariesManager):
     ACTIONS = BaseProcessManager.ACTIONS\
               + BaseLibrariesManager.ACTIONS
 
-    NODE_TYPE = 'dataengine'
+    NODE_TYPE = 'dataengineserver'
+
+'''
+    @abc.abstractmethod
+    def _get_ssn_deploy_uc(self):
+        pass
+
+    @abc.abstractmethod
+    def _get_ssn_provision_uc(self):
+        pass
+
+    def ssn_run(self):
+        uc = self._get_ssn_deploy_uc()  # type:  BaseUseCaseSSNDeploy
+        try:
+            uc.execute()
+        except DLabException:
+            uc.rollback()  # TODO is it needs to be here ?
+
+        uc = self._get_ssn_provision_uc()  # type:  BaseUseCaseSSNProvision
+        try:
+            uc.execute()
+        except DLabException:
+            uc.rollback()  # TODO is it needs to be here ?
+
+    def ssn_terminate(self):
+        pass
+
+    @abc.abstractmethod
+    def get_ssn_node(self):
+        pass
+'''
