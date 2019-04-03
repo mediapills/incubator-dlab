@@ -19,5 +19,5 @@
 #
 # ******************************************************************************
 
-import controllers
-import usecases
+import dlab.services.gcp.controllers                               # noqa: F401
+import dlab.services.gcp.usecases                                  # noqa: F401

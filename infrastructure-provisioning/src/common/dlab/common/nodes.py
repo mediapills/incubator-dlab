@@ -19,12 +19,10 @@
 #
 # ******************************************************************************
 
-# TODO redesign multi inheritance on mixin
-# TODO redesign ACTIONS generation move in __new__ method
+# TODO: redesign multi inheritance on mixin
 
 import abc
 import six
-
 
 from dlab.common.exceptions import DLabException
 
@@ -90,11 +88,9 @@ class BaseLibrariesManager:
 
 
 @six.add_metaclass(abc.ABCMeta)
-class Node:
+class BaseNode:
 
     NODE_TYPE = None
-
-    ACTIONS = []
 
     LC_MSG_UNKNOWN_CONSTANT = 'Constant "{name}" needs to be defined'
     LC_MSG_WRONG_ACTION = '{clsname} does not support action "{action}"'
@@ -124,49 +120,105 @@ class Node:
 
 
 @six.add_metaclass(abc.ABCMeta)
-class SSNNode(Node, BaseProcessManager):
+class SSNNode(BaseNode, BaseProcessManager):
 
     NODE_TYPE = 'ssn'
 
 
 @six.add_metaclass(abc.ABCMeta)
-class EDGENode(Node, BaseProcessManager, BaseServiceManager):
+class EDGENode(BaseNode, BaseProcessManager, BaseServiceManager):
+
+    ACTION_GET_STATUS = 'get_status'  # Gets all edge related infrastructure status
+    ACTION_RECREATE = 'recreate'  # Recreate broken nodes
+    ACTION_RELOAD_KEYS = 'reload_keys'  # (reupload_key) reload user SSH keys
 
     ACTIONS = BaseProcessManager.ACTIONS\
-              + BaseServiceManager.ACTIONS
+        + BaseServiceManager.ACTIONS\
+        + (ACTION_GET_STATUS, ACTION_RECREATE, ACTION_RELOAD_KEYS)
 
     NODE_TYPE = 'edge'
 
-    # get_status() -> do we need this ? node status + all related nodes status
-    # recreate() -> ?upgrade? what cases / if node goes down during creation
-    # reupload_key() -> need to be removed in SSHKeysManager
+    @abc.abstractmethod
+    def get_status(self):
+        pass
+
+    @abc.abstractmethod
+    def recreate(self):
+        pass
+
+    @abc.abstractmethod
+    def reload_keys(self):
+        pass
 
 
 @six.add_metaclass(abc.ABCMeta)
-class NotebookNode(Node, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
+class NotebookNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
+
+    # TODO: rename action 'configure'
+    ACTION_CONFIGURE = 'configure'  # join notebook and cluster
+    # TODO rename action 'git_creds'
+    ACTION_GIT_CREDS = 'git_creds'  # setup git credentials
+
     ACTIONS = BaseProcessManager.ACTIONS\
-              + BaseServiceManager.ACTIONS\
-              + BaseLibrariesManager.ACTIONS
+        + BaseServiceManager.ACTIONS\
+        + BaseLibrariesManager.ACTIONS\
+        + (ACTION_CONFIGURE, ACTION_GIT_CREDS)
 
     NODE_TYPE = 'notebook'
 
-    # Main function for configuring notebook server after deploying DataEngine service ?is it deploy?
-    # configure() -> ?what is inside? join notebook and cluster ! rename
-    # git_creds() -> needs to be removed in GITManaget ??? need to be investigated
+    @abc.abstractmethod
+    def configure(self):
+        pass
+
+    @abc.abstractmethod
+    def git_creds(self):
+        pass
 
 
 @six.add_metaclass(abc.ABCMeta)
-class DataEngineNode(Node, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
+class DataEngineNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
     ACTIONS = BaseProcessManager.ACTIONS\
-              + BaseServiceManager.ACTIONS\
-              + BaseLibrariesManager.ACTIONS
+        + BaseServiceManager.ACTIONS\
+        + BaseLibrariesManager.ACTIONS
 
     NODE_TYPE = 'dataengine'
 
 
 @six.add_metaclass(abc.ABCMeta)
-class DataEngineServerNode(Node, BaseProcessManager, BaseLibrariesManager):
+class DataEngineServerNode(BaseNode, BaseProcessManager, BaseLibrariesManager):
     ACTIONS = BaseProcessManager.ACTIONS\
-              + BaseLibrariesManager.ACTIONS
+        + BaseLibrariesManager.ACTIONS\
+        + BaseLibrariesManager.ACTIONS
 
-    NODE_TYPE = 'dataengine'
+    NODE_TYPE = 'dataengineserver'
+
+
+'''
+    @abc.abstractmethod
+    def _get_ssn_deploy_uc(self):
+        pass
+
+    @abc.abstractmethod
+    def _get_ssn_provision_uc(self):
+        pass
+
+    def ssn_run(self):
+        uc = self._get_ssn_deploy_uc()  # type:  BaseUseCaseSSNDeploy
+        try:
+            uc.execute()
+        except DLabException:
+            uc.rollback()  # TODO is it needs to be here ?
+
+        uc = self._get_ssn_provision_uc()  # type:  BaseUseCaseSSNProvision
+        try:
+            uc.execute()
+        except DLabException:
+            uc.rollback()  # TODO is it needs to be here ?
+
+    def ssn_terminate(self):
+        pass
+
+    @abc.abstractmethod
+    def get_ssn_node(self):
+        pass
+'''

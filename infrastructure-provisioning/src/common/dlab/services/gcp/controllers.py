@@ -18,19 +18,30 @@
 # under the License.
 #
 # ******************************************************************************
-
-
-from usecases import GCPUseCaseSSNDeploy, GCPUseCaseSSNProvision
 from dlab.common.controllers import BaseController
 from dlab.common import controllers
+from dlab.services.gcp import nodes
 
 
-@controllers.register
+@controllers.register('gcp')
 class GCPController(BaseController):
-    PROVIDER = 'gcp'
 
-    def _get_ssn_deploy_uc(self):
-        return GCPUseCaseSSNDeploy()
+    def ssn_node(self):
+        self._logger.debug('AWSController.ssn_node')
+        return nodes.GCPSSNNode()
 
-    def _get_ssn_provision_uc(self):
-        return GCPUseCaseSSNProvision()
+    def edge_node(self):
+        self._logger.debug('AWSController.edge_node')
+        return nodes.GCPEDGENode()
+
+    def notebook_node(self):
+        self._logger.debug('AWSController.notebook_node')
+        return nodes.GCPNotebookNode()
+
+    def data_engine_node(self):
+        self._logger.debug('AWSController.data_engine_node')
+        return nodes.GCPDataEngineNode()
+
+    def data_engine_server_node(self):
+        self._logger.debug('AWSController.data_engine_server_node')
+        return nodes.GCPDataEngineServerNode()

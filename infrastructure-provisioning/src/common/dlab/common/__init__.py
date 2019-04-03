@@ -19,18 +19,15 @@
 #
 # ******************************************************************************
 
-import controllers
-import exceptions
-import logger
-import managers
-import nodes
-import repositories
-import resources
-import shell
-import usecases
-import validators
 
-__all__ = ['CONTROLLERS', 'NODES']
-
-CONTROLLERS = dict()
-NODES = dict()
+import dlab.common.clidriver                                       # noqa: F401
+import dlab.common.controllers                                     # noqa: F401
+import dlab.common.exceptions                                      # noqa: F401
+import dlab.common.logger                                          # noqa: F401
+import dlab.common.managers                                        # noqa: F401
+import dlab.common.nodes                                           # noqa: F401
+import dlab.common.repositories                                    # noqa: F401
+import dlab.common.resources                                       # noqa: F401
+import dlab.common.shell                                           # noqa: F401
+import dlab.common.usecases                                        # noqa: F401
+import dlab.common.validators                                      # noqa: F401

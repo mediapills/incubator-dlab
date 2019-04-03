@@ -1,2 +1,2 @@
-fabric==1.4
 six
+configparser

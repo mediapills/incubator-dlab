@@ -18,11 +18,15 @@
 # under the License.
 #
 # ******************************************************************************
+import sys
 
 from setuptools import setup, find_packages
 
-NAME = "dlab.common"
-DESCRIPTION = "DLab - Common functionality"
+__version_info__ = (0, 0, 1)
+__version__ = ".".join(map(str, __version_info__))
+
+NAME = "dlabcli"
+DESCRIPTION = "DLab CLI - Common functionality"
 CLASSIFIERS = [
         "Development Status :: 1 - Planning  ",
         "Environment :: Console",
@@ -42,16 +46,30 @@ URL = "https://github.com/apache/incubator-dlab"
 AUTHOR = "Andrew Yatskovets"
 AUTHOR_EMAIL = 'andrew.yatskovets@gmail.com'
 
+with open("README.md", "r") as fh:
+    LONG_DESCRIPTION = fh.read()
+
 packages = find_packages()
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+requirements = [
+    'six'
+]
+# TODO: while tox create environment it can't read from local file
+# TODO: need to be clarified
+# with open('requirements.txt') as f:
+#     requirements = f.read().splitlines()
+
+if sys.platform == 'win32':
+    requirements.append('pypiwin32')
+
+# TODO: while tox create environment it can't read from local file
+# TODO: need to be clarified
 
 # Version info -- read without importing
-_locals = {}
-with open("version.py") as fp:
-    exec(fp.read(), None, _locals)
-version = _locals["__version__"]
+# _locals = {}
+# with open("version.py") as fp:
+#     exec(fp.read(), None, _locals)
+version = __version__
 
 setup(
     name=NAME,
@@ -65,5 +83,7 @@ setup(
     packages=packages,
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     install_requires=requirements,
-    scripts=['bin/dlab'],
+    scripts=['bin/dlabcli'],
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
 )

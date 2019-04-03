@@ -19,71 +19,114 @@
 #
 # ******************************************************************************
 
+# TODO: Nodes deployment versions nodes with new and old deployment procedures
+
 import abc
-import argparse
 import six
-import dlab
+import sys
+import argparse
 
-from exceptions import DLabException
-from usecases import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
+from dlab.common import nodes
+from .repositories import ArrayRepository
+
+controllers = ArrayRepository()
 
 
-# TODO Nodes deployment versions nodes with new and old deployment procedures
-
-def register(cls):
+def register(key):
     """Register a class as a plug-in"""
-    dlab.common.CONTROLLERS[cls.provider()] = cls
-    return cls
+    def wrapper(cls):
+        # TODO show error if key already exists
+        controllers.append(key, cls)
+        setattr(cls, '_type', key)
+        return cls
+
+    return wrapper
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseController:
-    PROVIDER = None
+    LC_NODE_CLI_HELP = 'TODO: Add help here'
+
+    NODE_GETTERS = {
+        nodes.SSNNode.NODE_TYPE: 'ssn_node',
+        nodes.EDGENode.NODE_TYPE: 'edge_node',
+        nodes.NotebookNode.NODE_TYPE: 'notebook_node',
+        nodes.DataEngineNode.NODE_TYPE: 'data_engine_node',
+        nodes.DataEngineServerNode.NODE_TYPE: 'data_engine_server_node',
+    }
+
+    parser = argparse.ArgumentParser()
 
     def __init__(self, logger):
-        self._parser = None
+        self._type = None
+        self._logger = logger
         logger.debug('Init controller "{name}".'.format(
             name=self.__class__.__name__
         ))
 
+    @staticmethod
+    def _get_node_argument():
+        return sys.argv[1]
+
+    @property
+    def current_node(self):
+        node = self._get_node_argument()
+        self.parser.add_argument(
+            'node type',
+            choices=self.NODE_GETTERS.keys(),
+            help=self.LC_NODE_CLI_HELP,
+        )
+
+        if node in self.NODE_GETTERS.keys():
+            return getattr(self, self.NODE_GETTERS[node])
+
+        self.parser.parse_args([node])
+
+    @staticmethod
+    def _get_action_argument():
+        # TODO: use arguments repository
+        # TODO: redesign like aws cli and move in clidriver
+        return sys.argv[2]
+
     @classmethod
-    def provider(cls):
-        if cls.PROVIDER is None:
-            raise DLabException('Class "{name}" type needs to be defined'.format(
-                name=cls.__name__
-            ))
+    def execute(cls, node):
+        action = cls._get_action_argument()
+        cls.parser.add_argument(
+            'action',
+            choices=node.ACTIONS,
+            help=cls.LC_NODE_CLI_HELP,
+        )
 
-        return cls.PROVIDER
+        if node.has_action(action):
+            ref = getattr(node, action)
+            return ref()
 
-    def _add_argument(self, name, default, help=''):
-        pass
+        cls.parser.parse_args([
+            cls._get_node_argument(),
+            action
+        ])
 
-    def _get_ssn_argument_parser(self):
-        if self._parser is None:
-            self._parser = argparse.ArgumentParser()
-            # TODO full fill arguments
-        return self._parser
-
+    @property
     @abc.abstractmethod
-    def _get_ssn_deploy_uc(self):
+    def ssn_node(self):
         pass
 
+    @property
     @abc.abstractmethod
-    def _get_ssn_provision_uc(self):
+    def edge_node(self):
         pass
 
-    def ssn_run(self):
-        uc = self._get_ssn_deploy_uc()  # type:  BaseUseCaseSSNDeploy
-        try:
-            uc.execute()
-        except DLabException:
-            uc.rollback()  # TODO is it needs to be here ?
+    @property
+    @abc.abstractmethod
+    def notebook_node(self):
+        pass
 
-        uc = self._get_ssn_provision_uc()  # type:  BaseUseCaseSSNProvision
-        try:
-            uc.execute()
-        except DLabException:
-            uc.rollback()  # TODO is it needs to be here ?
+    @property
+    @abc.abstractmethod
+    def data_engine_node(self):
+        pass
 
-    def ssn_terminate(self):
+    @property
+    @abc.abstractmethod
+    def data_engine_server_node(self):
         pass
