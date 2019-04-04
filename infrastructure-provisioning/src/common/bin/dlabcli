@@ -33,25 +33,11 @@ if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
 
 
-def get_logger():
-
-    logger = logging
-    logger.basicConfig(level=logging.DEBUG)
-
-    return logger
-
-
 def get_option():
-    
-    return 'aws'
+    option = 'aws'
 
-
-def get_controller():
-
-    option = get_option()
-    ctl = controllers.find_one(option)
-    if ctl:
-        return ctl(get_logger())  # type: BaseController
+    if controllers.find_one(option):
+        return option
 
     choices = controllers.find_all().keys()
     parser = argparse.ArgumentParser()
@@ -60,8 +46,14 @@ def get_controller():
 
 
 def main():
-    controller = get_controller()
-    node = controller.current_node
+    logger = logging
+    logger.basicConfig(level=logging.DEBUG)
+
+    option = get_option()
+    ctl_name = controllers.find_one(option)
+    ctl = ctl_name(logger)  # type: BaseController
+
+    node = ctl.current_node
 
     # step 3 run action
 

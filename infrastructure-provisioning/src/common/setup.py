@@ -22,7 +22,7 @@
 from setuptools import setup, find_packages
 
 NAME = "dlab.common"
-DESCRIPTION = "DLab - Common functionality"
+DESCRIPTION = "DLab CLI - Common functionality"
 CLASSIFIERS = [
         "Development Status :: 1 - Planning  ",
         "Environment :: Console",
@@ -65,5 +65,5 @@ setup(
     packages=packages,
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     install_requires=requirements,
-    scripts=['bin/dlab'],
+    scripts=['bin/dlabcli'],
 )
