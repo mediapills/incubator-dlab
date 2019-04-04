@@ -36,14 +36,14 @@ class TestConfigRepository(unittest.TestCase):
         config_repo = ConfigRepository(DATA_FILE)
         self.assertEqual(config_repo.file_path, DATA_FILE)
 
-    # TODO: check this case
-    # def test_empty_file_path(self):
-    #     with self.assertRaises(DLabException):
-    #         config_repo = ConfigRepository()
-    #         self.assertEqual(
-    #             'Cant specify file with path {file_path}'.format(file_path=file_path),
-    #             str(config_repo.exception)
-    #         )
+    def test_empty_file_path(self):
+        file_path = ''
+        with self.assertRaises(DLabException):
+            config_repo = ConfigRepository(file_path)
+            self.assertEqual(
+                'Cant specify file with path {file_path}'.format(file_path=file_path),
+                str(config_repo.exception)
+            )
 
     def test_file_not_exist(self):
         file_path = DATA_FILE + 'test'
@@ -68,7 +68,6 @@ class TestConfigRepository(unittest.TestCase):
         config_repo = ConfigRepository(DATA_FILE)
         configs = config_repo.find_all()
         self.assertIn('conf_os_user', configs.keys())
-        self.assertIn('aws_edge_instance_size', configs.keys())
 
     def test_change_file(self):
         test_file = 'dlab_test.ini'
