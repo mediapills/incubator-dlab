@@ -109,11 +109,10 @@ class ConfigRepository(BaseRepository):
                     self._data[var] = config.get(section, option)
 
     def find_one(self, key):
-        data = self._get_data()
-        return data.get(key)
+        return self.data.get(key)
 
     def find_all(self):
-        return self._get_data()
+        return self.data
 
 
 class EnvironRepository(BaseRepository):
