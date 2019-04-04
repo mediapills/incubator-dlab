@@ -20,6 +20,10 @@
 # ******************************************************************************
 
 import abc
+import json
+import sqlite3
+from copy import deepcopy
+
 import six
 import os
 
@@ -46,7 +50,56 @@ class BaseRepository:
         pass
 
 
-class ArrayRepository(BaseRepository):
+class Repository(BaseRepository):
+    def __init__(self):
+        self._data = {}
+
+    @property
+    def data(self):
+        if not self._data:
+            self._load_data()
+        return self._data
+
+    def _load_data(self):
+        self._data = {}
+
+    def find_one(self, key):
+        return self.data.get(key)
+
+    def find_all(self):
+        return self.data
+
+
+class FileRepository(Repository):
+    def __init__(self, absolute_path):
+        self._file_path = None
+        self.file_path = absolute_path
+
+    @property
+    def file_path(self):
+        return self._file_path
+
+    @file_path.setter
+    def file_path(self, file_path):
+        self._validate(file_path)
+        self._file_path = file_path
+        self._data = {}
+
+    @staticmethod
+    def _validate(file_path):
+
+        if not file_path:
+            raise DLabException('No file location specified.')
+
+        if not os.path.isfile(file_path):
+            raise DLabException(
+                'There is no file with path {file_path}'.format(
+                    file_path=file_path
+                )
+            )
+
+
+class ArrayRepository(Repository):
 
     def __init__(self, data={}):
         self._data = data
@@ -61,43 +114,11 @@ class ArrayRepository(BaseRepository):
         return self._data
 
 
-class ConfigRepository(BaseRepository):
+class ConfigRepository(FileRepository):
     VARIABLE_TEMPLATE = "{0}_{1}"
 
     def __init__(self, absolute_path):
-
-        self._data = {}
-        self._file_path = None
-        self.file_path = absolute_path
-
-    @property
-    def file_path(self):
-        return self._file_path
-
-    @file_path.setter
-    def file_path(self, file_path):
-        self._validate_file_path(file_path)
-        self._file_path = file_path
-        self._data = {}
-
-    @staticmethod
-    def _validate_file_path(file_path):
-
-        if not file_path:
-            raise DLabException('No file location specified.')
-
-        if not os.path.isfile(file_path):
-            raise DLabException(
-                'There is no file with path {file_path}'.format(
-                    file_path=file_path
-                )
-            )
-
-    @property
-    def data(self):
-        if not self._data:
-            self._load_data()
-        return self._data
+        super(ConfigRepository, self).__init__(absolute_path)
 
     def _load_data(self):
         config = configparser.ConfigParser()
@@ -108,52 +129,51 @@ class ConfigRepository(BaseRepository):
                 if var not in self._data.keys():
                     self._data[var] = config.get(section, option)
 
-    def find_one(self, key):
-        data = self._get_data()
-        return data.get(key)
-
-    def find_all(self):
-        return self._get_data()
-
 
 class EnvironRepository(BaseRepository):
 
     def find_one(self, key):
-        return os.environ[key]
+        return os.environ.get(key)
 
     def find_all(self):
         return os.environ
 
 
-class JSONContentRepository(BaseRepository):
+class JSONContentRepository(Repository):
 
-    def __init__(self, content=''):
-        self._content = content
-        # validate JSON
-        # parse JSON
-        raise DLabException('Needs to be implemented.')
+    def __init__(self, content):
+        super(JSONContentRepository, self).__init__()
+        self.content = content
 
-    def find_one(self, key):
-        raise DLabException('Needs to be implemented.')
-
-    def find_all(self):
-        raise DLabException('Needs to be implemented.')
-
-
-class SQLiteRepository(BaseRepository):
-
-    def __init__(self, filename):
-        self.filename = filename
-        raise DLabException('Needs to be implemented.')
-
-    def find_one(self, key):
-        raise DLabException('Needs to be implemented.')
-
-    def find_all(self):
-        raise DLabException('Needs to be implemented.')
+    def _load_data(self):
+        try:
+            json_data = json.loads(self.content)
+            self._data = deepcopy(json_data)
+        except ValueError:
+            raise DLabException('Can\'t parse content is not JSON object.')
 
 
-class ArgumentsRepository(BaseRepository):
+class SQLiteRepository(FileRepository):
+
+    GET_QUERY_TEMPLATE = 'SELECT key, value FROM {}'
+
+    def __init__(self, absolute_path, table_name):
+        super(SQLiteRepository, self).__init__(absolute_path)
+        self.table_name = table_name
+
+    def _load_data(self):
+        try:
+            conn = sqlite3.connect(self.file_path)
+            c = conn.cursor()
+            for row in c.execute(self.GET_QUERY_TEMPLATE.format(self.table_name)):
+                self._data[row[0]] = row[1]
+        except sqlite3.OperationalError as e:
+            raise DLabException(
+                'Error while data reading with message {}.'.format(str(e))
+            )
+
+
+class ArgumentsRepository(Repository):
 
     def __init__(self, argparse=None):
         if argparse is None:
