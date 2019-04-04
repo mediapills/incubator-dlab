@@ -21,7 +21,7 @@
 
 from setuptools import setup, find_packages
 
-NAME = "dlab.common"
+NAME = "dlabcli"
 DESCRIPTION = "DLab CLI - Common functionality"
 CLASSIFIERS = [
         "Development Status :: 1 - Planning  ",
