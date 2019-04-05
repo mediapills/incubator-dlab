@@ -49,13 +49,15 @@ def register(key):
 class BaseController:
     LC_NODE_CLI_HELP = 'TODO: Add help here'
 
-    NODES = {
+    NODE_GETTERS = {
         nodes.SSNNode.NODE_TYPE: 'ssn_node',
         nodes.EDGENode.NODE_TYPE: 'edge_node',
         nodes.NotebookNode.NODE_TYPE: 'notebook_node',
         nodes.DataEngineNode.NODE_TYPE: 'data_engine_node',
         nodes.DataEngineServerNode.NODE_TYPE: 'data_engine_server_node',
     }
+
+    parser = argparse.ArgumentParser()
 
     def __init__(self, logger):
         self._type = None
@@ -65,23 +67,45 @@ class BaseController:
         ))
 
     @staticmethod
-    def _get_argument():
+    def _get_node_argument():
         return sys.argv[1]
 
     @property
     def current_node(self):
-        option = self._get_argument()
-        if option in self.NODES.keys():
-            attr = getattr(self, self.NODES[option])
-            return attr()
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument(
+        node = self._get_node_argument()
+        self.parser.add_argument(
             'node type',
-            choices=self.NODES.keys(),
+            choices=self.NODE_GETTERS.keys(),
             help=self.LC_NODE_CLI_HELP,
         )
-        parser.parse_args([option])
+
+        if node in self.NODE_GETTERS.keys():
+            return getattr(self, self.NODE_GETTERS[node])
+
+        self.parser.parse_args([node])
+
+    @staticmethod
+    def _get_action_argument():
+        # TODO handle not exists action
+        return sys.argv[2]
+
+    @classmethod
+    def execute(cls, node):
+        action = cls._get_action_argument()
+        cls.parser.add_argument(
+            'action',
+            choices=node.ACTIONS,
+            help=cls.LC_NODE_CLI_HELP,
+        )
+
+        if node.has_action(action):
+            ref = getattr(node, action)
+            return ref()
+
+        cls.parser.parse_args([
+            cls._get_node_argument(),
+            action
+        ])
 
     @property
     @abc.abstractmethod

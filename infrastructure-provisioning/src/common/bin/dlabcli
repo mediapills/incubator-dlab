@@ -28,6 +28,7 @@ import logging
 import argparse
 
 from dlab.common.controllers import controllers, BaseController
+from dlab.common.nodes import BaseNode
 
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
@@ -53,9 +54,10 @@ def main():
     ctl_name = controllers.find_one(option)
     ctl = ctl_name(logger)  # type: BaseController
 
-    node = ctl.current_node
 
-    # step 3 run action
+
+    node = ctl.current_node()  # type: BaseNode
+    ctl.execute(node)
 
 
 if __name__ == '__main__':

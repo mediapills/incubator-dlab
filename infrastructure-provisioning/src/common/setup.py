@@ -42,6 +42,9 @@ URL = "https://github.com/apache/incubator-dlab"
 AUTHOR = "Andrew Yatskovets"
 AUTHOR_EMAIL = 'andrew.yatskovets@gmail.com'
 
+with open("README.md", "r") as fh:
+    LONG_DESCRIPTION = fh.read()
+
 packages = find_packages()
 
 with open('requirements.txt') as f:
@@ -66,4 +69,6 @@ setup(
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     install_requires=requirements,
     scripts=['bin/dlabcli'],
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
 )
