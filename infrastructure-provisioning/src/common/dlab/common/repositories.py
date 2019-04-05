@@ -72,6 +72,7 @@ class Repository(BaseRepository):
 
 class FileRepository(Repository):
     def __init__(self, absolute_path):
+        super(FileRepository, self).__init__()
         self._file_path = None
         self.file_path = absolute_path
 
@@ -101,9 +102,10 @@ class FileRepository(Repository):
 
 class ArrayRepository(Repository):
 
-    def __init__(self, data={}):
+    def __init__(self, data=None):
         super(ArrayRepository, self).__init__()
-        self._data = data
+        if data is not None:
+            self._data = data
 
     def append(self, key, value):
         self._data[key] = value

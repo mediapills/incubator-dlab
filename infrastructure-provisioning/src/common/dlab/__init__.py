@@ -19,5 +19,6 @@
 #
 # ******************************************************************************
 
-import common
-import services
+
+import common                                                      # noqa: F401
+import services                                                    # noqa: F401

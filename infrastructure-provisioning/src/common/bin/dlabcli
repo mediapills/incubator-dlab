@@ -54,8 +54,6 @@ def main():
     ctl_name = controllers.find_one(option)
     ctl = ctl_name(logger)  # type: BaseController
 
-
-
     node = ctl.current_node()  # type: BaseNode
     ctl.execute(node)
 

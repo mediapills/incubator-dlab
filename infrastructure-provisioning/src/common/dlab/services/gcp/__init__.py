@@ -19,5 +19,5 @@
 #
 # ******************************************************************************
 
-import controllers
-import usecases
+import controllers                                                 # noqa: F401
+import usecases                                                    # noqa: F401

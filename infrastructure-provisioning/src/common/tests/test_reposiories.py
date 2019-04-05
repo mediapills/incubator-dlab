@@ -105,7 +105,6 @@ class TestJSONContentRepository(unittest.TestCase):
                           }
                         ],
                         "cluster": [
-                          
                         ]
                       }
                     }"""
@@ -272,4 +271,3 @@ class TestArrayRepository(unittest.TestCase):
     def test_find_one_wrong_key(self):
         conf = self.arr_repo.find_one('conf_os_user3')
         self.assertIsNone(conf)
-

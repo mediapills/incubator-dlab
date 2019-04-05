@@ -134,8 +134,8 @@ class EDGENode(BaseNode, BaseProcessManager, BaseServiceManager):
     ACTION_RELOAD_KEYS = 'reload_keys'  # (reupload_key) reload user SSH keys
 
     ACTIONS = BaseProcessManager.ACTIONS\
-              + BaseServiceManager.ACTIONS\
-              + (ACTION_GET_STATUS, ACTION_RECREATE, ACTION_RELOAD_KEYS)
+        + BaseServiceManager.ACTIONS\
+        + (ACTION_GET_STATUS, ACTION_RECREATE, ACTION_RELOAD_KEYS)
 
     NODE_TYPE = 'edge'
 
@@ -161,9 +161,9 @@ class NotebookNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrari
     ACTION_GIT_CREDS = 'git_creds'  # setup git credentials
 
     ACTIONS = BaseProcessManager.ACTIONS\
-              + BaseServiceManager.ACTIONS\
-              + BaseLibrariesManager.ACTIONS\
-              + (ACTION_CONFIGURE, ACTION_GIT_CREDS)
+        + BaseServiceManager.ACTIONS\
+        + BaseLibrariesManager.ACTIONS\
+        + (ACTION_CONFIGURE, ACTION_GIT_CREDS)
 
     NODE_TYPE = 'notebook'
 
@@ -179,8 +179,8 @@ class NotebookNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrari
 @six.add_metaclass(abc.ABCMeta)
 class DataEngineNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
     ACTIONS = BaseProcessManager.ACTIONS\
-              + BaseServiceManager.ACTIONS\
-              + BaseLibrariesManager.ACTIONS
+        + BaseServiceManager.ACTIONS\
+        + BaseLibrariesManager.ACTIONS
 
     NODE_TYPE = 'dataengine'
 
@@ -188,9 +188,11 @@ class DataEngineNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibra
 @six.add_metaclass(abc.ABCMeta)
 class DataEngineServerNode(BaseNode, BaseProcessManager, BaseLibrariesManager):
     ACTIONS = BaseProcessManager.ACTIONS\
-              + BaseLibrariesManager.ACTIONS
+        + BaseLibrariesManager.ACTIONS\
+        + BaseLibrariesManager.ACTIONS
 
     NODE_TYPE = 'dataengineserver'
+
 
 '''
     @abc.abstractmethod

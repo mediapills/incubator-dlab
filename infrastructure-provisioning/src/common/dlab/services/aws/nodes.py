@@ -45,6 +45,15 @@ class AWSEDGENode(nodes.EDGENode):
     def stop(self):
         pass
 
+    def get_status(self):
+        pass
+
+    def recreate(self):
+        pass
+
+    def reload_keys(self):
+        pass
+
 
 class AWSNotebookNode(nodes.NotebookNode):
 
@@ -64,6 +73,12 @@ class AWSNotebookNode(nodes.NotebookNode):
         pass
 
     def show_libraries(self):
+        pass
+
+    def configure(self):
+        pass
+
+    def git_creds(self):
         pass
 
 
