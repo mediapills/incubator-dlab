@@ -102,6 +102,7 @@ class FileRepository(Repository):
 class ArrayRepository(Repository):
 
     def __init__(self, data={}):
+        super(ArrayRepository, self).__init__()
         self._data = data
 
     def append(self, key, value):
@@ -175,26 +176,31 @@ class SQLiteRepository(FileRepository):
 
 class ArgumentsRepository(Repository):
 
-    def __init__(self, argparse=None):
+    def __init__(self, argparse=None, params=()):
+        super(ArgumentsRepository, self).__init__()
         if argparse is None:
             self._argparse = argparse.ArgumentParser()
+        else:
+            self._argparse = argparse
 
-        raise DLabException('Needs to be implemented.')
+        self.params = params
 
     def add_argument(self, *args, **kwargs):
-        raise DLabException('Needs to be implemented.')
+        self._argparse.add_argument(*args, **kwargs)
+        self._data = {}
 
-    def find_one(self, key):
-        raise DLabException('Needs to be implemented.')
-
-    def find_all(self):
-        raise DLabException('Needs to be implemented.')
+    def _load_data(self):
+        args = vars(self._argparse.parse_args(self.params))
+        for key, val in args.items():
+            self._data[key] = val
 
 
 class ChainOfRepositories(BaseRepository):
-
+    # TODO: maybe data should be dict?
+    # TODO: contact all repos data in one dict?
+    # TODO: investigate this
     def __init__(self, repos=()):
-        self._repos = repos
+        self._repos = repos or []
         self._data = []
 
     def register(self, repo):
@@ -202,14 +208,15 @@ class ChainOfRepositories(BaseRepository):
 
     def find_one(self, key):
         for repo in self._repos:
-            if repo[key] is not None:
-                return repo[key]
+            value = repo.get(key)
+            if value is not None:
+                return value
 
         return None
 
     def find_all(self):
         if not self._data and len(self._repos):
             for repo in self._repos:
-                self._data = self._data + repo
+                self._data.extend(repo)
 
         return self._data
