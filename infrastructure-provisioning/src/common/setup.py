@@ -18,8 +18,12 @@
 # under the License.
 #
 # ******************************************************************************
+import sys
 
 from setuptools import setup, find_packages
+
+__version_info__ = (0, 0, 1)
+__version__ = ".".join(map(str, __version_info__))
 
 NAME = "dlabcli"
 DESCRIPTION = "DLab CLI - Common functionality"
@@ -47,14 +51,26 @@ with open("README.md", "r") as fh:
 
 packages = find_packages()
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+requirements = [
+    'fabric==1.4',
+    'six'
+]
+# TODO: while tox create environment it can't read from local file
+# TODO: need to be clarified
+# with open('requirements.txt') as f:
+#     requirements = f.read().splitlines()
+
+if sys.platform == 'win32':
+    requirements.append('pypiwin32')
+
+# TODO: while tox create environment it can't read from local file
+# TODO: need to be clarified
 
 # Version info -- read without importing
-_locals = {}
-with open("version.py") as fp:
-    exec(fp.read(), None, _locals)
-version = _locals["__version__"]
+# _locals = {}
+# with open("version.py") as fp:
+#     exec(fp.read(), None, _locals)
+version = __version__
 
 setup(
     name=NAME,
