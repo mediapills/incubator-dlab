@@ -52,7 +52,6 @@ with open("README.md", "r") as fh:
 packages = find_packages()
 
 requirements = [
-    'fabric==1.4',
     'six'
 ]
 # TODO: while tox create environment it can't read from local file

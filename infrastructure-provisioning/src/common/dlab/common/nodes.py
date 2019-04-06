@@ -19,8 +19,7 @@
 #
 # ******************************************************************************
 
-# TODO redesign multi inheritance on mixin
-# TODO redesign ACTIONS generation move in __new__ method
+# TODO: redesign multi inheritance on mixin
 
 import abc
 import six
@@ -155,9 +154,9 @@ class EDGENode(BaseNode, BaseProcessManager, BaseServiceManager):
 @six.add_metaclass(abc.ABCMeta)
 class NotebookNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
 
-    # TODO rename this action
+    # TODO: rename action 'configure'
     ACTION_CONFIGURE = 'configure'  # join notebook and cluster
-    # TODO rename this action
+    # TODO rename action 'git_creds'
     ACTION_GIT_CREDS = 'git_creds'  # setup git credentials
 
     ACTIONS = BaseProcessManager.ACTIONS\

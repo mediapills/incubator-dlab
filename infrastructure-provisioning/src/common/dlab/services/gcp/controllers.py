@@ -18,10 +18,9 @@
 # under the License.
 #
 # ******************************************************************************
-
-import nodes
 from dlab.common.controllers import BaseController
 from dlab.common import controllers
+from dlab.services.gcp import nodes
 
 
 @controllers.register('gcp')

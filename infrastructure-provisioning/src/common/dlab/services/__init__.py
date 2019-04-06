@@ -19,5 +19,5 @@
 #
 # ******************************************************************************
 
-import aws                                                         # noqa: F401
-import gcp                                                         # noqa: F401
+import dlab.services.aws                                           # noqa: F401
+import dlab.services.gcp                                           # noqa: F401

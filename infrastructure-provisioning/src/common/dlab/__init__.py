@@ -20,5 +20,5 @@
 # ******************************************************************************
 
 
-import common                                                      # noqa: F401
-import services                                                    # noqa: F401
+import dlab.common                                                 # noqa: F401
+import dlab.services                                               # noqa: F401

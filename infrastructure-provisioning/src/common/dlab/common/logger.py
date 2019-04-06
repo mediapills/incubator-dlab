@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-#  TODO Log Formatter which formats messages by RFC 3164 - BSD-syslog protocol
+#  TODO: Log Formatter which formats messages by RFC 3164 - BSD-syslog protocol
 
 ERROR = 40
 WARNING = 30

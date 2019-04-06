@@ -20,14 +20,14 @@
 # ******************************************************************************
 
 
-import clidriver                                                   # noqa: F401
-import controllers                                                 # noqa: F401
-import exceptions                                                  # noqa: F401
-import logger                                                      # noqa: F401
-import managers                                                    # noqa: F401
-import nodes                                                       # noqa: F401
-import repositories                                                # noqa: F401
-import resources                                                   # noqa: F401
-import shell                                                       # noqa: F401
-import usecases                                                    # noqa: F401
-import validators                                                  # noqa: F401
+import dlab.common.clidriver                                       # noqa: F401
+import dlab.common.controllers                                     # noqa: F401
+import dlab.common.exceptions                                      # noqa: F401
+import dlab.common.logger                                          # noqa: F401
+import dlab.common.managers                                        # noqa: F401
+import dlab.common.nodes                                           # noqa: F401
+import dlab.common.repositories                                    # noqa: F401
+import dlab.common.resources                                       # noqa: F401
+import dlab.common.shell                                           # noqa: F401
+import dlab.common.usecases                                        # noqa: F401
+import dlab.common.validators                                      # noqa: F401

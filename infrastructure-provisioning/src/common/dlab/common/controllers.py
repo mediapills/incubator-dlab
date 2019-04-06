@@ -19,21 +19,19 @@
 #
 # ******************************************************************************
 
-# TODO Nodes deployment versions nodes with new and old deployment procedures
-
+# TODO: Nodes deployment versions nodes with new and old deployment procedures
 
 import abc
 import six
 import sys
 import argparse
-import nodes
-from repositories import ArrayRepository
 
+from dlab.common import nodes
+from .repositories import ArrayRepository
 
 controllers = ArrayRepository()
 
 
-# TODO code duplication for nodes
 def register(key):
     """Register a class as a plug-in"""
     def wrapper(cls):
@@ -86,7 +84,8 @@ class BaseController:
 
     @staticmethod
     def _get_action_argument():
-        # TODO handle not exists action
+        # TODO: use arguments repository
+        # TODO: redesign like aws cli and move in clidriver
         return sys.argv[2]
 
     @classmethod
