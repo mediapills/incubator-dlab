@@ -78,7 +78,6 @@ class TestArrayRepository(BaseRepositoryTestCase, unittest.TestCase):
         val = self.repo.find_one('lower_case_key')
 
         self.assertEqual('lower_case_value', val)
-
         self.assertIsNone(self.repo.find_one('LOWER_CASE_KEY'))
 
     def test_upper_case_sensitivity(self):
@@ -86,7 +85,6 @@ class TestArrayRepository(BaseRepositoryTestCase, unittest.TestCase):
         val = self.repo.find_one('UPPER_CASE_KEY')
 
         self.assertEqual('upper_case_value', val)
-
         self.assertIsNone(self.repo.find_one('upper_case_key'))
 
     def test_append(self):
@@ -135,7 +133,6 @@ class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
         val = self.repo.find_one('lower_case_key')
 
         self.assertEqual('lower_case_value', val)
-
         self.assertIsNone(self.repo.find_one('LOWER_CASE_KEY'))
 
     @patch.dict('os.environ', MOCK_ENVIRON_UPPER_CASE)
@@ -144,7 +141,6 @@ class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
         val = self.repo.find_one('UPPER_CASE_KEY')
 
         self.assertEqual('upper_case_value', val)
-
         self.assertIsNone(self.repo.find_one('upper_case_key'))
 
 
@@ -176,7 +172,6 @@ class TestJSONContentRepository(BaseRepositoryTestCase, unittest.TestCase):
         val = self.repo.find_one('lower_case_key')
 
         self.assertEqual('lower_case_value', val)
-
         self.assertIsNone(self.repo.find_one('LOWER_CASE_KEY'))
 
     def test_upper_case_sensitivity(self):
@@ -184,7 +179,6 @@ class TestJSONContentRepository(BaseRepositoryTestCase, unittest.TestCase):
         val = self.repo.find_one('UPPER_CASE_KEY')
 
         self.assertEqual('upper_case_value', val)
-
         self.assertIsNone(self.repo.find_one('upper_case_key'))
 
     def test_reload_content(self):
@@ -247,7 +241,6 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
         val = self.repo.find_one('lower_case_key')
         
         self.assertEqual('lower_case_value', val)
-
         self.assertIsNone(self.repo.find_one('LOWER_CASE_KEY'))
 
     @patch('sys.argv', MOCK_ARGS_UPPER_CASE)
@@ -256,7 +249,6 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
         val = self.repo.find_one('UPPER_CASE_KEY')
 
         self.assertEqual('upper_case_value', val)
-
         self.assertIsNone(self.repo.find_one('upper_case_key'))
 
     def test_unrecognized_arguments(self):
