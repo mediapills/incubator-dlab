@@ -18,119 +18,246 @@
 # under the License.
 #
 # ******************************************************************************
-import unittest
+import abc
 from mock import patch
 import sys
 import six
+import unittest
 
 from dlab.common import exceptions, repositories
 
 
-class TestArrayRepository(unittest.TestCase):
+@six.add_metaclass(abc.ABCMeta)
+class BaseRepositoryTestCase:
+
+    @abc.abstractmethod
+    def test_find_one(self):
+        pass
+
+    @abc.abstractmethod
+    def test_find_all(self):
+        pass
+
+    @abc.abstractmethod
+    def test_find_one_wrong_key(self):
+        pass
+
+    @abc.abstractmethod
+    def test_lower_case_sensitivity(self):
+        pass
+
+    @abc.abstractmethod
+    def test_upper_case_sensitivity(self):
+        pass
+
+
+class TestArrayRepository(BaseRepositoryTestCase, unittest.TestCase):
 
     def setUp(self):
         self.repo = repositories.ArrayRepository()
-        self.repo.append('key', 'value')
 
     def test_find_one(self):
+        self.repo.append('key', 'value')
         val = self.repo.find_one('key')
+
         self.assertEqual('value', val)
 
     def test_find_all(self):
+        self.repo.append('key', 'value')
         data = self.repo.find_all()
+
         self.assertEqual({'key': 'value'}, data)
 
     def test_find_one_wrong_key(self):
         val = self.repo.find_one('wrong_key')
+
         self.assertIsNone(val)
 
+    def test_lower_case_sensitivity(self):
+        self.repo.append('lower_case_key', 'lower_case_value')
+        val = self.repo.find_one('lower_case_key')
+
+        self.assertEqual('lower_case_value', val)
+
+        self.assertIsNone(self.repo.find_one('LOWER_CASE_KEY'))
+
+    def test_upper_case_sensitivity(self):
+        self.repo.append('UPPER_CASE_KEY', 'upper_case_value')
+        val = self.repo.find_one('UPPER_CASE_KEY')
+
+        self.assertEqual('upper_case_value', val)
+
+        self.assertIsNone(self.repo.find_one('upper_case_key'))
+
     def test_append(self):
+        self.repo.append('key', 'value')
         self.repo.append('other_key', 'other_value')
         val = self.repo.find_one('other_key')
-        self.assertIn('other_value', val)
+
+        self.assertEqual('other_value', val)
 
     def test_replace(self):
+        self.repo.append('key', 'value')
         self.repo.append('key', 'other_value')
         val = self.repo.find_one('key')
-        self.assertIn('other_value', val)
+
+        self.assertEqual('other_value', val)
 
 
-class TestEnvironRepository(unittest.TestCase):
+class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
+    MOCK_ENVIRON = {'key': 'value'}
+    MOCK_ENVIRON_LOWER_CASE = {'lower_case_key': 'lower_case_value'}
+    MOCK_ENVIRON_UPPER_CASE = {'UPPER_CASE_KEY': 'upper_case_value'}
 
-    def setUp(self):
-        with patch.dict('os.environ', {'key': 'value'}):
-            self.repo = repositories.EnvironRepository()
-
+    @patch.dict('os.environ', MOCK_ENVIRON)
     def test_find_one(self):
+        self.repo = repositories.EnvironRepository()
         val = self.repo.find_one('key')
+
         self.assertEqual('value', val)
 
+    @patch.dict('os.environ', MOCK_ENVIRON)
     def test_find_all(self):
+        self.repo = repositories.EnvironRepository()
         data = self.repo.find_all()
+
         self.assertIn('key', data.keys())
 
     def test_find_one_wrong_key(self):
+        self.repo = repositories.EnvironRepository()
         val = self.repo.find_one('wrong_key')
+
         self.assertIsNone(val)
 
+    @patch.dict('os.environ', MOCK_ENVIRON_LOWER_CASE)
+    def test_lower_case_sensitivity(self):
+        self.repo = repositories.EnvironRepository()
+        val = self.repo.find_one('lower_case_key')
 
-class TestJSONContentRepository(unittest.TestCase):
+        self.assertEqual('lower_case_value', val)
 
-    def setUp(self):
-        self.repo = repositories.JSONContentRepository('{"key": "value"}')
+        self.assertIsNone(self.repo.find_one('LOWER_CASE_KEY'))
+
+    @patch.dict('os.environ', MOCK_ENVIRON_UPPER_CASE)
+    def test_upper_case_sensitivity(self):
+        self.repo = repositories.EnvironRepository()
+        val = self.repo.find_one('UPPER_CASE_KEY')
+
+        self.assertEqual('upper_case_value', val)
+
+        self.assertIsNone(self.repo.find_one('upper_case_key'))
+
+
+class TestJSONContentRepository(BaseRepositoryTestCase, unittest.TestCase):
+    MOCK_CONTENT = '{"key": "value"}'
+    MOCK_CONTENT_LOWER_CASE = '{"lower_case_key": "lower_case_value"}'
+    MOCK_CONTENT_UPPER_CASE = '{"UPPER_CASE_KEY": "upper_case_value"}'
 
     def test_find_one(self):
+        self.repo = repositories.JSONContentRepository(self.MOCK_CONTENT)
         val = self.repo.find_one('key')
+
         self.assertEqual('value', val)
 
     def test_find_all(self):
+        self.repo = repositories.JSONContentRepository(self.MOCK_CONTENT)
         data = self.repo.find_all()
+
         self.assertEqual({'key': 'value'}, data)
 
     def test_find_one_wrong_key(self):
+        self.repo = repositories.JSONContentRepository(self.MOCK_CONTENT)
         val = self.repo.find_one('wrong_key')
+
         self.assertIsNone(val)
 
-    def test_reload_data(self):
+    def test_lower_case_sensitivity(self):
+        self.repo = repositories.JSONContentRepository(self.MOCK_CONTENT_LOWER_CASE)
+        val = self.repo.find_one('lower_case_key')
+
+        self.assertEqual('lower_case_value', val)
+
+        self.assertIsNone(self.repo.find_one('LOWER_CASE_KEY'))
+
+    def test_upper_case_sensitivity(self):
+        self.repo = repositories.JSONContentRepository(self.MOCK_CONTENT_UPPER_CASE)
+        val = self.repo.find_one('UPPER_CASE_KEY')
+
+        self.assertEqual('upper_case_value', val)
+
+        self.assertIsNone(self.repo.find_one('upper_case_key'))
+
+    def test_reload_content(self):
+        self.repo = repositories.JSONContentRepository(self.MOCK_CONTENT)
         self.repo.content = '{"new_key": "new_value"}'
         data = self.repo.find_all()
+
         self.assertEqual({'new_key': 'new_value'}, data)
 
     def test_no_json_object(self):
-        none_json_object = 'no_json_object'
-        err_msg = self.repo.LC_NOT_JSON_CONTENT
+        none_json_object = 'not_json_content'
+        err_msg = repositories.JSONContentRepository.LC_NOT_JSON_CONTENT
 
         with self.assertRaises(exceptions.DLabException) as context:
             repositories.JSONContentRepository(none_json_object)
+
         self.assertTrue(err_msg, str(context.exception))
 
 
-class TestArgumentsRepository(unittest.TestCase):
-    ARGS = [
+class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
+    MOCK_ARGS = [
         'unittest_runner.py',
         '--key', 'value',
+    ]
+
+    MOCK_ARGS_LOWER_CASE = [
+        'unittest_runner.py',
+        '--lower_case_key', 'lower_case_value',
+    ]
+
+    MOCK_ARGS_UPPER_CASE = [
+        'unittest_runner.py',
+        '--UPPER_CASE_KEY', 'upper_case_value',
     ]
 
     def setUp(self):
         self.repo = repositories.ArgumentsRepository()
 
+    @patch('sys.argv', MOCK_ARGS)
     def test_find_one(self):
         self.repo.add_argument('--key')
+        val = self.repo.find_one('key')
 
-        with patch('sys.argv', self.ARGS):
-            val = self.repo.find_one('key')
         self.assertEqual('value', val)
 
+    @patch('sys.argv', MOCK_ARGS)
     def test_find_all(self):
         self.repo.add_argument('--key')
+        data = self.repo.find_all()
 
-        with patch('sys.argv', self.ARGS):
-            data = self.repo.find_all()
         self.assertEqual({'key': 'value'}, data)
 
     def test_find_one_wrong_key(self):
         val = self.repo.find_one('wrong_key')
         self.assertIsNone(val)
+
+    @patch('sys.argv', MOCK_ARGS_LOWER_CASE)
+    def test_lower_case_sensitivity(self):
+        self.repo.add_argument('--lower_case_key')
+        val = self.repo.find_one('lower_case_key')
+        
+        self.assertEqual('lower_case_value', val)
+
+        self.assertIsNone(self.repo.find_one('LOWER_CASE_KEY'))
+
+    @patch('sys.argv', MOCK_ARGS_UPPER_CASE)
+    def test_upper_case_sensitivity(self):
+        self.repo.add_argument('--UPPER_CASE_KEY')
+        val = self.repo.find_one('UPPER_CASE_KEY')
+
+        self.assertEqual('upper_case_value', val)
+
+        self.assertIsNone(self.repo.find_one('upper_case_key'))
 
     def test_unrecognized_arguments(self):
         err_msg = self.repo.LC_ERR_WRONG_ARGUMENTS
@@ -138,76 +265,89 @@ class TestArgumentsRepository(unittest.TestCase):
 
         with self.assertRaises(exceptions.DLabException) as context:
             self.repo.find_one('option')
+
         self.assertTrue(err_msg, str(context.exception))
 
 
+# TODO: merge 4 decorators in one and remove args
+# TODO: implement BaseRepositoryTestCase
 class TestConfigRepository(unittest.TestCase):
+    MOCK_FILE_PATH = '/tmp/test.ini'
 
-    FILE_PATH = '/tmp/test.ini'
+    if six.PY2:
+        PARSER = 'ConfigParser.ConfigParser.'
+    else:
+        PARSER = 'configparser.ConfigParser.'
+
+    PARSER_SECTIONS = PARSER + 'sections'
+    PARSER_OPTIONS = PARSER + 'options'
+    PARSER_GET = PARSER + 'get'
+
+    VALUE_SECTIONS = ['section']
+    VALUE_KEY = ['key']
+    VALUE_VALUE = 'value'
 
     def setUp(self):
-        parser = 'ConfigParser' if six.PY2 else 'configparser'
-        parser += '.ConfigParser'
-
         self.targets = {
-            'sections': '{parser}.sections',
-            'options': '{parser}.options',
-            'get': '{parser}.get',
+            'sections': 'sections',
+            'options': 'options',
+            'get': 'get',
         }
 
         for key, val in self.targets.items():
-            self.targets.update({key: val.format(parser=parser)})
+            self.targets.update({key: self.PARSER + val})
 
-    def test_find_one(self):
-        with patch('os.path.isfile', return_value=True):
-            repo = repositories.ConfigRepository(self.FILE_PATH)
+    @patch('os.path.isfile', return_value=True)
+    @patch(PARSER_SECTIONS, return_value=VALUE_SECTIONS)
+    @patch(PARSER_OPTIONS, return_value=VALUE_KEY)
+    @patch(PARSER_GET, return_value=VALUE_VALUE)
+    def test_find_one(self, *args):
+        repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
+        val = repo.find_one('section_key')
 
-        with patch(self.targets['sections'], return_value=['section']),\
-            patch(self.targets['options'],  return_value=['key']),\
-                patch(self.targets['get'], return_value=['value']):
-            val = repo.find_one('section_key')
-        self.assertEqual(['value'], val)
+        self.assertEqual('value', val)
 
-    def test_find_all(self):
-        with patch('os.path.isfile', return_value=True):
-            repo = repositories.ConfigRepository(self.FILE_PATH)
+    @patch('os.path.isfile', return_value=True)
+    @patch(PARSER_SECTIONS, return_value=VALUE_SECTIONS)
+    @patch(PARSER_OPTIONS, return_value=VALUE_KEY)
+    @patch(PARSER_GET, return_value=VALUE_VALUE)
+    def test_find_all(self, *args):
+        repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
+        data = repo.find_all()
+        self.assertEqual({'section_key': 'value'}, data)
 
-        with patch(self.targets['sections'], return_value=['section']),\
-            patch(self.targets['options'],  return_value=['key']),\
-                patch(self.targets['get'], return_value=['value']):
-            data = repo.find_all()
-        self.assertEqual({'section_key': ['value']}, data)
+    @patch('os.path.isfile', return_value=True)
+    @patch(PARSER_SECTIONS, return_value=VALUE_SECTIONS)
+    @patch(PARSER_OPTIONS, return_value=VALUE_KEY)
+    @patch(PARSER_GET, return_value=VALUE_VALUE)
+    def test_find_one_wrong_key(self, * args):
+        repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
+        val = repo.find_one('wrong_key')
 
-    def test_find_one_wrong_key(self):
-        with patch('os.path.isfile', return_value=True):
-            repo = repositories.ConfigRepository(self.FILE_PATH)
-
-        with patch(self.targets['sections'], return_value=['section']),\
-            patch(self.targets['options'],  return_value=['key']),\
-                patch(self.targets['get'], return_value=['value']):
-            val = repo.find_one('wrong_key')
         self.assertIsNone(val)
 
     def test_file_not_exist(self):
         err_msg = repositories.ConfigRepository.LC_NO_FILE.format(
-            file_path=self.FILE_PATH
+            file_path=self.MOCK_FILE_PATH
         )
 
         with self.assertRaises(Exception) as context:
-            repositories.ConfigRepository(self.FILE_PATH)
+            repositories.ConfigRepository(self.MOCK_FILE_PATH)
+
         self.assertEqual(err_msg, str(context.exception))
 
-    def test_file_exist_check(self):
-        with patch('os.path.isfile', return_value=True):
-            repo = repositories.ConfigRepository(self.FILE_PATH)
-        self.assertEqual(self.FILE_PATH, repo.file_path)
+    @patch('os.path.isfile', return_value=True)
+    def test_file_exist_check(self, *args):
+        repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
 
-    def test_change_file(self):
+        self.assertEqual(self.MOCK_FILE_PATH, repo.file_path)
+
+    @patch('os.path.isfile', return_value=True)
+    def test_change_file(self, *args):
         file_path = '/tmp/new_test.ini'
+        repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
+        repo.file_path = '/tmp/new_test.ini'
 
-        with patch('os.path.isfile', return_value=True):
-            repo = repositories.ConfigRepository(self.FILE_PATH)
-            repo.file_path = '/tmp/new_test.ini'
         self.assertEqual(file_path, repo.file_path)
 
 
