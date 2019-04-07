@@ -18,19 +18,16 @@
 # under the License.
 #
 # ******************************************************************************
-
 import abc
-import json
-import sqlite3
-from copy import deepcopy
 import argparse
-import sys
-from contextlib import contextmanager
-
-import six
+import json
 import os
+import six
+import sqlite3
+import sys
 
-
+from contextlib import contextmanager
+from copy import deepcopy
 from dlab.common.exceptions import DLabException
 
 
@@ -80,7 +77,7 @@ class JSONContentRepository(BaseRepository):
 
     LC_NOT_JSON_CONTENT = 'No JSON object could be decoded'
 
-    def __init__(self, content = None):
+    def __init__(self, content=None):
         super(JSONContentRepository, self).__init__()
         self.content = content
 
@@ -222,6 +219,7 @@ class ChainOfRepositories(BaseRepository):
     # TODO: contact all repos data in one dict? NO repos doing this
     # TODO: investigate this
     def __init__(self, repos=()):
+        super(ChainOfRepositories, self).__init__()
         self._repos = repos or []
         self._data = []
 
