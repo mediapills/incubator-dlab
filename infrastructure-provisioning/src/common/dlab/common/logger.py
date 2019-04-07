@@ -28,6 +28,10 @@ INFO = 20
 DEBUG = 10
 
 
+def formatter():
+    return '%(message)s'
+
+
 def log(level, msg):
     """
     Low-level logging routine which creates a LogRecord and then calls
