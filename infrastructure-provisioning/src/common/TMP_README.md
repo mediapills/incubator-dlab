@@ -32,3 +32,4 @@ $ pip install git+https://github.com/mediapills/incubator-dlab.git@DLAB-546#subd
 | 22 | Install build deps | 2
 | 23 | Build UI | 2, 3, 14, 22
 | 24 | Start UI | 2, 3, 14, 22, 23
+
