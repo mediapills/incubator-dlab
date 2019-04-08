@@ -261,6 +261,21 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertTrue(err_msg, str(context.exception))
 
 
+def config_repo_mock():
+
+    def wrapper(cls):
+        if six.PY2:
+            parser = 'ConfigParser.ConfigParser.'
+        else:
+            parser = 'configparser.ConfigParser.'
+
+        with patch(parser + 'sections', return_value=['section']):
+            with patch(parser + 'options', return_value=['key']):
+                with patch(parser + 'get', return_value='value'):
+                    return cls
+    return wrapper
+
+
 # TODO: merge 4 decorators in one and remove args
 # TODO: implement BaseRepositoryTestCase
 class TestConfigRepository(unittest.TestCase):
@@ -299,10 +314,8 @@ class TestConfigRepository(unittest.TestCase):
 
         self.assertEqual('value', val)
 
+    @config_repo_mock
     @patch('os.path.isfile', return_value=True)
-    @patch(PARSER_SECTIONS, return_value=VALUE_SECTIONS)
-    @patch(PARSER_OPTIONS, return_value=VALUE_KEY)
-    @patch(PARSER_GET, return_value=VALUE_VALUE)
     def test_find_all(self, *args):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
         data = repo.find_all()

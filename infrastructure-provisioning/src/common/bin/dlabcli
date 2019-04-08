@@ -20,14 +20,12 @@
 # under the License.
 #
 # ******************************************************************************
-
-
 import sys
 import os
 import logging
 import argparse
 
-from dlab.common.controllers import controllers, BaseController
+from dlab.common.controllers import BaseController, registry as cls_registry
 from dlab.common.nodes import BaseNode
 
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
@@ -37,10 +35,10 @@ if os.environ.get('LC_CTYPE', '') == 'UTF-8':
 def get_option():
     option = 'aws'
 
-    if controllers.find_one(option):
+    if cls_registry.find_one(option):
         return option
 
-    choices = controllers.find_all().keys()
+    choices = cls_registry.find_all().keys()
     parser = argparse.ArgumentParser()
     parser.add_argument('--provider', choices=choices)
     parser.parse_args(['--provider', option])
@@ -51,7 +49,8 @@ def main():
     logger.basicConfig(level=logging.DEBUG)
 
     option = get_option()
-    ctl_name = controllers.find_one(option)
+    ctl_name = cls_registry.find_one(option)
+    # set type
     ctl = ctl_name(logger)  # type: BaseController
 
     node = ctl.current_node()  # type: BaseNode

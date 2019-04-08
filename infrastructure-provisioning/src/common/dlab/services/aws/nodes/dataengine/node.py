@@ -18,68 +18,7 @@
 # under the License.
 #
 # ******************************************************************************
-
 from dlab.common import nodes
-
-
-class AWSSSNNode(nodes.SSNNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
-
-
-class AWSEDGENode(nodes.EDGENode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
-
-    def start(self):
-        pass
-
-    def stop(self):
-        pass
-
-    def get_status(self):
-        pass
-
-    def recreate(self):
-        pass
-
-    def reload_keys(self):
-        pass
-
-
-class AWSNotebookNode(nodes.NotebookNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
-
-    def start(self):
-        pass
-
-    def stop(self):
-        pass
-
-    def install_libraries(self):
-        pass
-
-    def show_libraries(self):
-        pass
-
-    def configure(self):
-        pass
-
-    def git_creds(self):
-        pass
 
 
 class AWSDataEngineNode(nodes.DataEngineNode):
@@ -94,21 +33,6 @@ class AWSDataEngineNode(nodes.DataEngineNode):
         pass
 
     def stop(self):
-        pass
-
-    def install_libraries(self):
-        pass
-
-    def show_libraries(self):
-        pass
-
-
-class AWSDataEngineServerNode(nodes.DataEngineServerNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
         pass
 
     def install_libraries(self):

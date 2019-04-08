@@ -18,5 +18,31 @@
 # under the License.
 #
 # ******************************************************************************
-import dlab.services.aws.controllers                               # noqa: F401
-import dlab.services.aws.usecases                                  # noqa: F401
+from dlab.common import nodes
+
+
+class AWSNotebookNode(nodes.NotebookNode):
+
+    def run(self):
+        pass
+
+    def terminate(self):
+        pass
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
+    def install_libraries(self):
+        pass
+
+    def show_libraries(self):
+        pass
+
+    def configure(self):
+        pass
+
+    def git_creds(self):
+        pass

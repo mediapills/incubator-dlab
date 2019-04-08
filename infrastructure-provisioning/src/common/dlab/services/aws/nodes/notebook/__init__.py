@@ -18,5 +18,5 @@
 # under the License.
 #
 # ******************************************************************************
-import dlab.services.aws.controllers                               # noqa: F401
-import dlab.services.aws.usecases                                  # noqa: F401
+import dlab.services.aws.nodes.notebook.node                       # noqa: F401
+import dlab.services.aws.nodes.notebook.usecases                   # noqa: F401

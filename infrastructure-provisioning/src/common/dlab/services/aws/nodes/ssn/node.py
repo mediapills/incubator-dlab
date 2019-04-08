@@ -18,5 +18,13 @@
 # under the License.
 #
 # ******************************************************************************
-import dlab.services.aws.controllers                               # noqa: F401
-import dlab.services.aws.usecases                                  # noqa: F401
+from dlab.common import nodes
+
+
+class AWSSSNNode(nodes.SSNNode):
+
+    def run(self):
+        pass
+
+    def terminate(self):
+        pass

@@ -30,4 +30,3 @@ import dlab.common.repositories                                    # noqa: F401
 import dlab.common.resources                                       # noqa: F401
 import dlab.common.shell                                           # noqa: F401
 import dlab.common.usecases                                        # noqa: F401
-import dlab.common.validators                                      # noqa: F401

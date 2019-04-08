@@ -29,15 +29,15 @@ import argparse
 from dlab.common import nodes
 from .repositories import ArrayRepository
 
-controllers = ArrayRepository()
+registry = ArrayRepository()
 
 
 def register(key):
     """Register a class as a plug-in"""
     def wrapper(cls):
         # TODO show error if key already exists
-        controllers.append(key, cls)
-        setattr(cls, '_type', key)
+        registry.append(key, cls)
+        # setattr(cls, '_type', key)
         return cls
 
     return wrapper

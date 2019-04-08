@@ -18,5 +18,19 @@
 # under the License.
 #
 # ******************************************************************************
-import dlab.services.aws.controllers                               # noqa: F401
-import dlab.services.aws.usecases                                  # noqa: F401
+from dlab.common import nodes
+
+
+class AWSDataEngineServerNode(nodes.DataEngineServerNode):
+
+    def run(self):
+        pass
+
+    def terminate(self):
+        pass
+
+    def install_libraries(self):
+        pass
+
+    def show_libraries(self):
+        pass

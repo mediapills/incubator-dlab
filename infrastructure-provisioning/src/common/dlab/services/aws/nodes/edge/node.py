@@ -18,5 +18,28 @@
 # under the License.
 #
 # ******************************************************************************
-import dlab.services.aws.controllers                               # noqa: F401
-import dlab.services.aws.usecases                                  # noqa: F401
+from dlab.common import nodes
+
+
+class AWSEDGENode(nodes.EDGENode):
+
+    def run(self):
+        pass
+
+    def terminate(self):
+        pass
+
+    def start(self):
+        pass
+
+    def stop(self):
+        pass
+
+    def get_status(self):
+        pass
+
+    def recreate(self):
+        pass
+
+    def reload_keys(self):
+        pass
