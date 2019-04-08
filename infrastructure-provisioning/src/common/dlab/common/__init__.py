@@ -20,7 +20,6 @@
 # ******************************************************************************
 
 
-import dlab.common.clidriver                                       # noqa: F401
 import dlab.common.controllers                                     # noqa: F401
 import dlab.common.exceptions                                      # noqa: F401
 import dlab.common.logger                                          # noqa: F401

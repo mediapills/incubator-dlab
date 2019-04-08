@@ -18,33 +18,23 @@
 # under the License.
 #
 # ******************************************************************************
+import abc
+import six
 
-from dlab.common.usecases import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
-from dlab.common.exceptions import DLabException
-
-
-class AWSUseCaseSSNDeploy(BaseUseCaseSSNDeploy):
-
-    def _setup_infrastructure(self):
-        raise DLabException('Needs to be implemented')
-
-    def _configure_network(self):
-        raise DLabException('Needs to be implemented')
-
-    def _create_instance(self):
-        raise DLabException('Needs to be implemented')
+from dlab.common.nodes.base import DataEngineServerNode
 
 
-class AWSUseCaseSSNProvision(BaseUseCaseSSNProvision):
+@six.add_metaclass(abc.ABCMeta)
+class BaseDataEngineServerNode(DataEngineServerNode):
 
-    def _install_db(self):
-        raise DLabException('Needs to be implemented')
+    def run(self):
+        pass
 
-    def _create_db(self):
-        raise DLabException('Needs to be implemented')
+    def terminate(self):
+        pass
 
-    def _build_ui(self):
-        raise DLabException('Needs to be implemented')
+    def install_libraries(self):
+        pass
 
-    def _start_ui(self):
-        raise DLabException('Needs to be implemented')
+    def show_libraries(self):
+        pass

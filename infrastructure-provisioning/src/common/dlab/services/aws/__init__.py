@@ -19,4 +19,4 @@
 #
 # ******************************************************************************
 import dlab.services.aws.controllers                               # noqa: F401
-import dlab.services.aws.usecases                                  # noqa: F401
+import dlab.services.aws.nodes                                     # noqa: F401

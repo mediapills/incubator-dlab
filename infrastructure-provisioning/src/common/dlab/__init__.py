@@ -18,7 +18,6 @@
 # under the License.
 #
 # ******************************************************************************
-
-
+import dlab.clidriver                                              # noqa: F401
 import dlab.common                                                 # noqa: F401
 import dlab.services                                               # noqa: F401

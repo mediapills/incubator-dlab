@@ -18,8 +18,17 @@
 # under the License.
 #
 # ******************************************************************************
-from dlab.common.nodes.dataengine.node import BaseDataEngineNode
+import abc
+import six
+
+from dlab.common.nodes.base import SSNNode
 
 
-class AWSDataEngineNode(BaseDataEngineNode):
-    pass
+@six.add_metaclass(abc.ABCMeta)
+class BaseSSNNode(SSNNode):
+
+    def run(self):
+        pass
+
+    def terminate(self):
+        pass

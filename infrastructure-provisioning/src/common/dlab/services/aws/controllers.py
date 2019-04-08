@@ -20,7 +20,11 @@
 # ******************************************************************************
 from dlab.common.controllers import BaseController
 from dlab.common import controllers
-from dlab.services.aws import nodes
+from .nodes.dataengine.node import AWSDataEngineNode
+from .nodes.dataengineserver.node import AWSDataEngineServerNode
+from .nodes.edge.node import AWSEDGENode
+from .nodes.notebook.node import AWSNotebookNode
+from .nodes.ssn.node import AWSSSNNode
 
 
 @controllers.register('aws')
@@ -28,20 +32,20 @@ class AWSController(BaseController):
 
     def data_engine_node(self):
         self._logger.debug('AWSController.data_engine_node')
-        return nodes.dataengine.node.AWSDataEngineNode()
+        return AWSDataEngineNode()
 
     def data_engine_server_node(self):
         self._logger.debug('AWSController.data_engine_server_node')
-        return nodes.dataengineserver.node.AWSDataEngineServerNode()
+        return AWSDataEngineServerNode()
 
     def edge_node(self):
         self._logger.debug('AWSController.edge_node')
-        return nodes.edge.node.AWSEDGENode()
+        return AWSEDGENode()
 
     def notebook_node(self):
         self._logger.debug('AWSController.notebook_node')
-        return nodes.notebook.node.AWSNotebookNode()
+        return AWSNotebookNode()
 
     def ssn_node(self):
         self._logger.debug('AWSController.ssn_node')
-        return nodes.ssn.node.AWSSSNNode()
+        return AWSSSNNode()

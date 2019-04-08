@@ -18,19 +18,8 @@
 # under the License.
 #
 # ******************************************************************************
-from dlab.common import nodes
+from dlab.common.nodes.dataengineserver.node import BaseDataEngineServerNode
 
 
-class AWSDataEngineServerNode(nodes.DataEngineServerNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
-
-    def install_libraries(self):
-        pass
-
-    def show_libraries(self):
-        pass
+class AWSDataEngineServerNode(BaseDataEngineServerNode):
+    pass

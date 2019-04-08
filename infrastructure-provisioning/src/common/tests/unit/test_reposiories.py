@@ -189,13 +189,8 @@ class TestJSONContentRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertEqual({'new_key': 'new_value'}, data)
 
     def test_no_json_object(self):
-        none_json_object = 'not_json_content'
-        err_msg = repositories.JSONContentRepository.LC_NOT_JSON_CONTENT
-
-        with self.assertRaises(exceptions.DLabException) as context:
-            repositories.JSONContentRepository(none_json_object)
-
-        self.assertTrue(err_msg, str(context.exception))
+        with self.assertRaises(exceptions.DLabException):
+            repositories.JSONContentRepository('not_json_content')
 
 
 class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
@@ -252,13 +247,10 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertIsNone(self.repo.find_one('upper_case_key'))
 
     def test_unrecognized_arguments(self):
-        err_msg = self.repo.LC_ERR_WRONG_ARGUMENTS
         sys.argv.append('argument')
 
-        with self.assertRaises(exceptions.DLabException) as context:
+        with self.assertRaises(exceptions.DLabException):
             self.repo.find_one('option')
-
-        self.assertTrue(err_msg, str(context.exception))
 
 
 def config_repo_mock():
@@ -273,6 +265,7 @@ def config_repo_mock():
             with patch(parser + 'options', return_value=['key']):
                 with patch(parser + 'get', return_value='value'):
                     return cls
+
     return wrapper
 
 
@@ -314,8 +307,10 @@ class TestConfigRepository(unittest.TestCase):
 
         self.assertEqual('value', val)
 
-    @config_repo_mock
     @patch('os.path.isfile', return_value=True)
+    @patch(PARSER_SECTIONS, return_value=VALUE_SECTIONS)
+    @patch(PARSER_OPTIONS, return_value=VALUE_KEY)
+    @patch(PARSER_GET, return_value=VALUE_VALUE)
     def test_find_all(self, *args):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
         data = repo.find_all()
@@ -332,14 +327,8 @@ class TestConfigRepository(unittest.TestCase):
         self.assertIsNone(val)
 
     def test_file_not_exist(self):
-        err_msg = repositories.ConfigRepository.LC_NO_FILE.format(
-            file_path=self.MOCK_FILE_PATH
-        )
-
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(exceptions.DLabException):
             repositories.ConfigRepository(self.MOCK_FILE_PATH)
-
-        self.assertEqual(err_msg, str(context.exception))
 
     @patch('os.path.isfile', return_value=True)
     def test_file_exist_check(self, *args):

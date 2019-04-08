@@ -18,8 +18,5 @@
 # under the License.
 #
 # ******************************************************************************
-from dlab.common.nodes.dataengine.node import BaseDataEngineNode
-
-
-class AWSDataEngineNode(BaseDataEngineNode):
-    pass
+import dlab.common.nodes.dataengineserver.node                     # noqa: F401
+import dlab.common.nodes.dataengineserver.usecases                 # noqa: F401

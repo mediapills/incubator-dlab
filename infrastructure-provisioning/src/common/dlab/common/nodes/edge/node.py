@@ -18,20 +18,14 @@
 # under the License.
 #
 # ******************************************************************************
+import abc
+import six
 
-from dlab.common import nodes
-
-
-class GCPSSNNode(nodes.SSNNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
+from dlab.common.nodes.base import EDGENode
 
 
-class GCPEDGENode(nodes.EDGENode):
+@six.add_metaclass(abc.ABCMeta)
+class BaseEDGENode(EDGENode):
 
     def run(self):
         pass
@@ -52,67 +46,4 @@ class GCPEDGENode(nodes.EDGENode):
         pass
 
     def reload_keys(self):
-        pass
-
-
-class GCPNotebookNode(nodes.NotebookNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
-
-    def start(self):
-        pass
-
-    def stop(self):
-        pass
-
-    def install_libraries(self):
-        pass
-
-    def show_libraries(self):
-        pass
-
-    def configure(self):
-        pass
-
-    def git_creds(self):
-        pass
-
-
-class GCPDataEngineNode(nodes.DataEngineNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
-
-    def start(self):
-        pass
-
-    def stop(self):
-        pass
-
-    def install_libraries(self):
-        pass
-
-    def show_libraries(self):
-        pass
-
-
-class GCPDataEngineServerNode(nodes.DataEngineServerNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
-
-    def install_libraries(self):
-        pass
-
-    def show_libraries(self):
         pass

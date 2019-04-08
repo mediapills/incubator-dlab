@@ -20,7 +20,6 @@
 # ******************************************************************************
 from dlab.common.controllers import BaseController
 from dlab.common import controllers
-from dlab.services.gcp import nodes
 
 
 @controllers.register('gcp')
@@ -28,20 +27,15 @@ class GCPController(BaseController):
 
     def ssn_node(self):
         self._logger.debug('AWSController.ssn_node')
-        return nodes.GCPSSNNode()
 
     def edge_node(self):
         self._logger.debug('AWSController.edge_node')
-        return nodes.GCPEDGENode()
 
     def notebook_node(self):
         self._logger.debug('AWSController.notebook_node')
-        return nodes.GCPNotebookNode()
 
     def data_engine_node(self):
         self._logger.debug('AWSController.data_engine_node')
-        return nodes.GCPDataEngineNode()
 
     def data_engine_server_node(self):
         self._logger.debug('AWSController.data_engine_server_node')
-        return nodes.GCPDataEngineServerNode()

@@ -26,8 +26,8 @@ import six
 import sys
 import argparse
 
-from dlab.common import nodes
-from .repositories import ArrayRepository
+from dlab.common.nodes import base as nodes
+from dlab.common.repositories import ArrayRepository
 
 registry = ArrayRepository()
 
@@ -37,7 +37,6 @@ def register(key):
     def wrapper(cls):
         # TODO show error if key already exists
         registry.append(key, cls)
-        # setattr(cls, '_type', key)
         return cls
 
     return wrapper

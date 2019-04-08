@@ -18,13 +18,8 @@
 # under the License.
 #
 # ******************************************************************************
-from dlab.common import nodes
+from dlab.common.nodes.ssn.node import BaseSSNNode
 
 
-class AWSSSNNode(nodes.SSNNode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
+class AWSSSNNode(BaseSSNNode):
+    pass

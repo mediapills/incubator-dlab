@@ -18,28 +18,8 @@
 # under the License.
 #
 # ******************************************************************************
-from dlab.common import nodes
+from dlab.common.nodes.edge.node import BaseEDGENode
 
 
-class AWSEDGENode(nodes.EDGENode):
-
-    def run(self):
-        pass
-
-    def terminate(self):
-        pass
-
-    def start(self):
-        pass
-
-    def stop(self):
-        pass
-
-    def get_status(self):
-        pass
-
-    def recreate(self):
-        pass
-
-    def reload_keys(self):
-        pass
+class AWSEDGENode(BaseEDGENode):
+    pass

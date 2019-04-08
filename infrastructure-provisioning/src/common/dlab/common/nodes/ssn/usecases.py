@@ -18,8 +18,3 @@
 # under the License.
 #
 # ******************************************************************************
-from dlab.common.nodes.dataengine.node import BaseDataEngineNode
-
-
-class AWSDataEngineNode(BaseDataEngineNode):
-    pass

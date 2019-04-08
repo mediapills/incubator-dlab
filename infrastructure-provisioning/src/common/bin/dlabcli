@@ -20,41 +20,16 @@
 # under the License.
 #
 # ******************************************************************************
+import dlab
 import sys
 import os
-import logging
-import argparse
-
-from dlab.common.controllers import BaseController, registry as cls_registry
-from dlab.common.nodes import BaseNode
 
 if os.environ.get('LC_CTYPE', '') == 'UTF-8':
     os.environ['LC_CTYPE'] = 'en_US.UTF-8'
 
 
-def get_option():
-    option = 'aws'
-
-    if cls_registry.find_one(option):
-        return option
-
-    choices = cls_registry.find_all().keys()
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--provider', choices=choices)
-    parser.parse_args(['--provider', option])
-
-
 def main():
-    logger = logging
-    logger.basicConfig(level=logging.DEBUG)
-
-    option = get_option()
-    ctl_name = cls_registry.find_one(option)
-    # set type
-    ctl = ctl_name(logger)  # type: BaseController
-
-    node = ctl.current_node()  # type: BaseNode
-    ctl.execute(node)
+    return dlab.clidriver.main()
 
 
 if __name__ == '__main__':
