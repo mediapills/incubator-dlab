@@ -27,6 +27,42 @@ import unittest
 from dlab.common import exceptions, repositories
 
 
+def mock_data_base(func):
+    def wrapper(*args):
+        with patch('sqlite3.connect') as con:
+            con.return_value.execute.return_value.fetchall.return_value = (('section_key', 'value'),)
+            with patch('os.path.isfile', return_value=True):
+                return func(*args)
+    return wrapper
+
+
+def config_parser_mock(isfileonly=False):
+
+    def decorator(func):
+
+        def wrapper(*args):
+
+            if isfileonly:
+                with patch('os.path.isfile', return_value=True):
+                    return func(*args)
+
+            # TODO: get parser name from repository.ConfigParser
+            if six.PY2:
+                parser = 'ConfigParser.ConfigParser.'
+            else:
+                parser = 'configparser.ConfigParser.'
+
+            with patch(parser + 'sections', return_value=['section']):
+                with patch(parser + 'options', return_value=['key']):
+                    with patch(parser + 'get', return_value='value'):
+                        with patch('os.path.isfile', return_value=True):
+                            return func(*args)
+
+        return wrapper
+
+    return decorator
+
+
 @six.add_metaclass(abc.ABCMeta)
 class BaseRepositoryTestCase:
 
@@ -102,13 +138,13 @@ class TestArrayRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertEqual('other_value', val)
 
 
-# TODO: check how to exclude win specific tests
 class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
     MOCK_ENVIRON = {'key': 'value'}
     MOCK_ENVIRON_LOWER_CASE = {'lower_case_key': 'lower_case_value'}
     MOCK_ENVIRON_UPPER_CASE = {'UPPER_CASE_KEY': 'upper_case_value'}
 
     @patch.dict('os.environ', MOCK_ENVIRON)
+    @unittest.skipIf(sys.platform == 'win32', reason="does not run on windows")
     def test_find_one(self):
         self.repo = repositories.EnvironRepository()
         val = self.repo.find_one('key')
@@ -116,6 +152,7 @@ class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertEqual('value', val)
 
     @patch.dict('os.environ', MOCK_ENVIRON)
+    @unittest.skipIf(sys.platform == 'win32', reason="does not run on windows")
     def test_find_all(self):
         self.repo = repositories.EnvironRepository()
         data = self.repo.find_all()
@@ -129,6 +166,7 @@ class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertIsNone(val)
 
     @patch.dict('os.environ', MOCK_ENVIRON_LOWER_CASE)
+    @unittest.skipIf(sys.platform == 'win32', reason="does not run on windows")
     def test_lower_case_sensitivity(self):
         self.repo = repositories.EnvironRepository()
         val = self.repo.find_one('lower_case_key')
@@ -254,36 +292,12 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
             self.repo.find_one('option')
 
 
-def config_parser_mock(isfileonly=False):
-
-    def decorator(func):
-
-        def wrapper(*args):
-
-            if isfileonly:
-                with patch('os.path.isfile', return_value=True):
-                    return func(*args)
-
-            # TODO: get parser name from repository.ConfigParser
-            if six.PY2:
-                parser = 'ConfigParser.ConfigParser.'
-            else:
-                parser = 'configparser.ConfigParser.'
-
-            with patch(parser + 'sections', return_value=['section']):
-                with patch(parser + 'options', return_value=['key']):
-                    with patch(parser + 'get', return_value='value'):
-                        with patch('os.path.isfile', return_value=True):
-                            return func(*args)
-
-        return wrapper
-
-    return decorator
-
-
-# TODO: implement BaseRepositoryTestCase
-class TestConfigRepository(unittest.TestCase):
+class TestConfigRepository(BaseRepositoryTestCase, unittest.TestCase):
     MOCK_FILE_PATH = '/tmp/test.ini'
+    if six.PY2:
+        parser = 'ConfigParser.ConfigParser.'
+    else:
+        parser = 'configparser.ConfigParser.'
 
     @config_parser_mock()
     def test_find_one(self):
@@ -323,67 +337,127 @@ class TestConfigRepository(unittest.TestCase):
 
         self.assertEqual(file_path, repo.file_path)
 
+    @config_parser_mock()
+    def test_lower_case_sensitivity(self, *args):
+        self.repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
+        val = self.repo.find_one('section_key')
+        self.assertEqual('value', val)
+        self.assertIsNone(self.repo.find_one('SECTION_KEY'))
 
-# TODO: implement this class
-class TestSQLiteRepository(unittest.TestCase):
-    pass
+    # TODO: check how refactor this
+    @config_parser_mock(isfileonly=True)
+    @patch(parser + 'sections', return_value=['SECTION'])
+    @patch(parser + 'options', return_value=['KEY'])
+    @patch(parser + 'get', return_value='value')
+    def test_upper_case_sensitivity(self, *args):
+        self.repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
+        val = self.repo.find_one('SECTION_KEY')
+
+        self.assertEqual('value', val)
+        self.assertIsNone(self.repo.find_one('section_key'))
 
 
-'''
-    FILE_NAME = 'dblab.db'
-    DATA_FILE = os.path.join(BASE_TEST_DIR, PATH_TO_FILE, 'sql_repository', FILE_NAME)
+class TestSQLiteRepository(BaseRepositoryTestCase, unittest.TestCase):
+    MOCK_FILE_PATH = '/tmp/test.db'
     DB_TABLE = 'config'
+    GET_QUERY_TEMPLATE = 'SELECT key, value FROM {}'
 
-    def test_file_exist(self):
-        config_repo = SQLiteRepository(self.DATA_FILE, self.DB_TABLE)
-        self.assertEqual(config_repo.file_path, self.DATA_FILE)
-
-    def test_empty_file_path(self):
-        file_path = ''
-        with self.assertRaises(DLabException):
-            config_repo = SQLiteRepository(file_path, self.DB_TABLE)
-            self.assertEqual(
-                'Cant specify file with path {file_path}'.format(file_path=file_path),
-                str(config_repo.exception)
-            )
+    @patch('os.path.isfile', return_value=True)
+    def test_file_exist(self, *args):
+        config_repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
+        self.assertEqual(config_repo.file_path, self.MOCK_FILE_PATH)
 
     def test_file_not_exist(self):
-        file_path = self.DATA_FILE + 'test'
-        with self.assertRaises(DLabException):
-            config_repo = SQLiteRepository(file_path, self.DB_TABLE)
-            self.assertEqual(
-                'Cant specify file with path {file_path}'.format(file_path=file_path),
-                str(config_repo.exception)
-            )
+        with self.assertRaises(exceptions.DLabException):
+            repositories.ConfigRepository(self.MOCK_FILE_PATH)
 
-    def test_wrong_table_name(self):
-        file_path = self.DATA_FILE
+    @patch('os.path.isfile', return_value=True)
+    def test_wrong_table_name(self, *args):
         table_name = self.DB_TABLE + 'test'
-        with self.assertRaises(DLabException):
-            config_repo = SQLiteRepository(file_path, table_name)
+        with self.assertRaises(exceptions.DLabException):
+            config_repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, table_name)
             self.assertIn(
                 'Error while data reading with message ',
                 str(config_repo.data)
             )
 
-    def test_find_one(self):
-        config_repo = SQLiteRepository(self.DATA_FILE, self.DB_TABLE)
-        config = config_repo.find_one('conf_os_user')
-        self.assertEqual('dlab-user', config)
+    @mock_data_base
+    def test_find_one(self, *args):
+        config_repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
+        config = config_repo.find_one('section_key')
+        self.assertEqual('value', config)
 
+    @mock_data_base
     def test_find_one_wrong_key(self):
-        config_repo = SQLiteRepository(self.DATA_FILE, self.DB_TABLE)
+        config_repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
         config = config_repo.find_one('test')
         self.assertIsNone(config)
 
+    @mock_data_base
     def test_find_all(self):
-        config_repo = SQLiteRepository(self.DATA_FILE, self.DB_TABLE)
+        config_repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
         configs = config_repo.find_all()
-        self.assertIn('conf_os_user', configs.keys())
-'''
+        self.assertEqual({'section_key': 'value'}, configs)
+
+    @mock_data_base
+    def test_lower_case_sensitivity(self, *args):
+        self.repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
+        val = self.repo.find_one('section_key')
+        self.assertEqual('value', val)
+        self.assertIsNone(self.repo.find_one('SECTION_KEY'))
+
+    @patch('os.path.isfile', return_value=True)
+    @patch('sqlite3.connect')
+    def test_upper_case_sensitivity(self, con, *args):
+        con.return_value.execute.return_value.fetchall.return_value = (('SECTION_KEY', 'value'),)
+        self.repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
+        val = self.repo.find_one('SECTION_KEY')
+
+        self.assertEqual('value', val)
+        self.assertIsNone(self.repo.find_one('section_key'))
 
 
-# TODO: implement this class
-class TestChainOfRepositories(unittest.TestCase):
-    pass
+class TestChainOfRepositories(BaseRepositoryTestCase, unittest.TestCase):
 
+    @patch('dlab.common.repositories.ConfigRepository')
+    def test_register_repo(self, repository):
+        repo = repositories.ChainOfRepositories()
+        repo.register(repository)
+        self.assertEqual(len(repo._repos), 1)
+
+    @patch('dlab.common.repositories.ConfigRepository')
+    def test_find_all(self, repository):
+        repository.data = {'section_key': 'value'}
+        repo = repositories.ChainOfRepositories([repository])
+        configs = repo.find_all()
+        self.assertEqual({'section_key': 'value'}, configs)
+
+    @patch('dlab.common.repositories.ConfigRepository')
+    def test_find_one(self, repository):
+        repository.find_one.return_value = 'value'
+        repo = repositories.ChainOfRepositories([repository])
+        config = repo.find_one('section_key')
+        self.assertEqual('value', config)
+
+    @patch('dlab.common.repositories.ConfigRepository')
+    def test_find_one_wrong_key(self, repository):
+        repository.find_one.return_value = None
+        repo = repositories.ChainOfRepositories([repository])
+        config = repo.find_one('test')
+        self.assertIsNone(config)
+
+    @patch('dlab.common.repositories.ConfigRepository')
+    def test_lower_case_sensitivity(self, repository):
+        repository.find_one.return_value = 'value'
+        repo = repositories.ChainOfRepositories([repository])
+        val = repo.find_one('section_key')
+        self.assertEqual('value', val)
+        self.assertNotEqual(repo.find_one('section_key'), {'SECTION_KEY': 'value'})
+
+    @patch('dlab.common.repositories.ConfigRepository')
+    def test_upper_case_sensitivity(self, repository):
+        repository.find_one.return_value = {'SECTION_KEY': 'value'}
+        repo = repositories.ChainOfRepositories([repository])
+        val = repo.find_one('SECTION_KEY')
+        self.assertEqual({'SECTION_KEY': 'value'}, val)
+        self.assertNotEqual(repo.find_one('section_key'), {'section_key': 'value'})

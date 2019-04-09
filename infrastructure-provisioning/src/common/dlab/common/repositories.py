@@ -205,8 +205,9 @@ class SQLiteRepository(BaseFileRepository):
     def _load_data(self):
         try:
             conn = sqlite3.connect(self.file_path)
-            c = conn.cursor()
-            for row in c.execute(self.GET_QUERY_TEMPLATE.format(self.table_name)):
+            cur = conn.execute(self.GET_QUERY_TEMPLATE.format(self.table_name))
+            values = cur.fetchall()
+            for row in values:
                 self._data[row[0]] = row[1]
         except sqlite3.OperationalError as e:
             raise DLabException(self.LC_READING_ERROR.format(
