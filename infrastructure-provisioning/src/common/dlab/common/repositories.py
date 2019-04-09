@@ -31,7 +31,6 @@ from copy import deepcopy
 from dlab.common.exceptions import DLabException
 
 
-# TODO: support python2 and python3
 if six.PY2:
     from ConfigParser import ConfigParser
 else:
@@ -118,6 +117,7 @@ class ArgumentsRepository(BaseLazyLoadRepository):
     def __init__(self, arg_parse=None):
         super(ArgumentsRepository, self).__init__()
         # TODO: check is arg_parse type of ArgumentParser
+        # TODO: add test for this
         if arg_parse is None:
             self._arg_parse = argparse.ArgumentParser()
         else:
@@ -215,28 +215,26 @@ class SQLiteRepository(BaseFileRepository):
 
 
 class ChainOfRepositories(BaseRepository):
-    # TODO: maybe data should be dict? NO repos doing this
-    # TODO: contact all repos data in one dict? NO repos doing this
-    # TODO: investigate this
     def __init__(self, repos=()):
         super(ChainOfRepositories, self).__init__()
         self._repos = repos or []
-        self._data = []
 
     def register(self, repo):
         self._repos.append(repo)
 
     def find_one(self, key):
         for repo in self._repos:
-            value = repo.get(key)
+            value = repo.find_one(key)
             if value is not None:
                 return value
 
         return None
 
     def find_all(self):
-        if not self._data and len(self._repos):
-            for repo in self._repos:
-                self._data.extend(repo)
+        data = {}
 
-        return self._data
+        if len(self._repos):
+            for repo in self._repos:
+                data.update(repo.data)
+
+        return data

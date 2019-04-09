@@ -102,6 +102,7 @@ class TestArrayRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertEqual('other_value', val)
 
 
+# TODO: check how to exclude win specific tests
 class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
     MOCK_ENVIRON = {'key': 'value'}
     MOCK_ENVIRON_LOWER_CASE = {'lower_case_key': 'lower_case_value'}
@@ -253,58 +254,52 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
             self.repo.find_one('option')
 
 
-def config_repo_mock(func):
+def config_parser_mock(isfileonly=False):
 
-    def wrapper(*args):
-        if six.PY2:
-            parser = 'ConfigParser.ConfigParser.'
-        else:
-            parser = 'configparser.ConfigParser.'
+    def decorator(func):
 
-        with patch(parser + 'sections', return_value=['section']):
-            with patch(parser + 'options', return_value=['key']):
-                with patch(parser + 'get', return_value='value'):
-                    with patch('os.path.isfile', return_value=True):
-                        return func(*args)
+        def wrapper(*args):
 
-    return wrapper
+            if isfileonly:
+                with patch('os.path.isfile', return_value=True):
+                    return func(*args)
+
+            # TODO: get parser name from repository.ConfigParser
+            if six.PY2:
+                parser = 'ConfigParser.ConfigParser.'
+            else:
+                parser = 'configparser.ConfigParser.'
+
+            with patch(parser + 'sections', return_value=['section']):
+                with patch(parser + 'options', return_value=['key']):
+                    with patch(parser + 'get', return_value='value'):
+                        with patch('os.path.isfile', return_value=True):
+                            return func(*args)
+
+        return wrapper
+
+    return decorator
 
 
-# TODO: merge 4 decorators in one and remove args
 # TODO: implement BaseRepositoryTestCase
 class TestConfigRepository(unittest.TestCase):
     MOCK_FILE_PATH = '/tmp/test.ini'
 
-    if six.PY2:
-        PARSER = 'ConfigParser.ConfigParser.'
-    else:
-        PARSER = 'configparser.ConfigParser.'
-
-    def setUp(self):
-        self.targets = {
-            'sections': 'sections',
-            'options': 'options',
-            'get': 'get',
-        }
-
-        for key, val in self.targets.items():
-            self.targets.update({key: self.PARSER + val})
-
-    @config_repo_mock
-    def test_find_one(self, *args):
+    @config_parser_mock()
+    def test_find_one(self):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
         val = repo.find_one('section_key')
 
         self.assertEqual('value', val)
 
-    @config_repo_mock
-    def test_find_all(self, *args):
+    @config_parser_mock()
+    def test_find_all(self):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
         data = repo.find_all()
         self.assertEqual({'section_key': 'value'}, data)
 
-    @config_repo_mock
-    def test_find_one_wrong_key(self, * args):
+    @config_parser_mock()
+    def test_find_one_wrong_key(self):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
         val = repo.find_one('wrong_key')
 
@@ -314,13 +309,13 @@ class TestConfigRepository(unittest.TestCase):
         with self.assertRaises(exceptions.DLabException):
             repositories.ConfigRepository(self.MOCK_FILE_PATH)
 
-    @patch('os.path.isfile', return_value=True)
+    @config_parser_mock(isfileonly=True)
     def test_file_exist_check(self, *args):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
 
         self.assertEqual(self.MOCK_FILE_PATH, repo.file_path)
 
-    @patch('os.path.isfile', return_value=True)
+    @config_parser_mock(isfileonly=True)
     def test_change_file(self, *args):
         file_path = '/tmp/new_test.ini'
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
@@ -329,8 +324,12 @@ class TestConfigRepository(unittest.TestCase):
         self.assertEqual(file_path, repo.file_path)
 
 
-'''
+# TODO: implement this class
 class TestSQLiteRepository(unittest.TestCase):
+    pass
+
+
+'''
     FILE_NAME = 'dblab.db'
     DATA_FILE = os.path.join(BASE_TEST_DIR, PATH_TO_FILE, 'sql_repository', FILE_NAME)
     DB_TABLE = 'config'
@@ -382,3 +381,9 @@ class TestSQLiteRepository(unittest.TestCase):
         configs = config_repo.find_all()
         self.assertIn('conf_os_user', configs.keys())
 '''
+
+
+# TODO: implement this class
+class TestChainOfRepositories(unittest.TestCase):
+    pass
+
