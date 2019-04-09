@@ -196,17 +196,24 @@ class ConfigRepository(BaseFileRepository):
 class SQLiteRepository(BaseFileRepository):
 
     GET_QUERY_TEMPLATE = 'SELECT key, value FROM {}'
-    LC_READING_ERROR = 'Error while data reading with message {msg}.'
+    LC_READING_ERROR = 'Error while data reading with message "{msg}".'
 
     def __init__(self, absolute_path, table_name):
         super(SQLiteRepository, self).__init__(absolute_path)
         self.table_name = table_name
 
+    # TODO: getter and setter needs to be added for table_name
+    # TODO: create tests for table getters and setters
+    # TODO: there must be two different queries for one and all data
+    # TODO: does not mke sense to implement lazy load here
+    # TODO: maybe we can separate BaseFileRepository and BaseLazyLoadRepository
+    # TODO: maybe we can manage set key and value fields name
     def _load_data(self):
         try:
             conn = sqlite3.connect(self.file_path)
-            c = conn.cursor()
-            for row in c.execute(self.GET_QUERY_TEMPLATE.format(self.table_name)):
+            cur = conn.execute(self.GET_QUERY_TEMPLATE.format(self.table_name))
+            values = cur.fetchall()
+            for row in values:
                 self._data[row[0]] = row[1]
         except sqlite3.OperationalError as e:
             raise DLabException(self.LC_READING_ERROR.format(
@@ -217,8 +224,10 @@ class SQLiteRepository(BaseFileRepository):
 class ChainOfRepositories(BaseRepository):
     def __init__(self, repos=()):
         super(ChainOfRepositories, self).__init__()
+        # TODO: there is already register function for this with validation
         self._repos = repos or []
 
+    # TODO: add repo validation
     def register(self, repo):
         self._repos.append(repo)
 
