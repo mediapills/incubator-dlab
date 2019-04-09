@@ -28,7 +28,7 @@ from dlab.common import exceptions, repositories
 
 
 # TODO: move keys in kwargs and set default values
-def config_parser_mock(data=('section', 'key', 'value')):
+def config_parser_mock(data):
 
     def decorator(func):
 
@@ -40,9 +40,9 @@ def config_parser_mock(data=('section', 'key', 'value')):
             else:
                 parser = 'configparser.ConfigParser.'
 
-            with patch(parser + 'sections', return_value=[data[0]]):
-                with patch(parser + 'options', return_value=[data[1]]):
-                    with patch(parser + 'get', return_value=data[2]):
+            with patch(parser + 'sections', return_value=data['s']):
+                with patch(parser + 'options', return_value=data['k']):
+                    with patch(parser + 'get', return_value=data['v']):
                         return func(*args)
 
         return wrapper
@@ -59,6 +59,15 @@ def sqlite3_mock(func):
             ]
             with patch('os.path.isfile', return_value=True):
                 return func(*args)
+
+    return wrapper
+
+
+def file_exists_mock(func):
+
+    def wrapper(*args):
+        with patch('os.path.isfile', return_value=True):
+            return func(*args)
 
     return wrapper
 
@@ -294,26 +303,41 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
             self.repo.find_one('option')
 
 
-# TODO: implement BaseRepositoryTestCase
 class TestConfigRepository(BaseRepositoryTestCase, unittest.TestCase):
     MOCK_FILE_PATH = '/tmp/test.ini'
 
-    @patch('os.path.isfile', return_value=True)
-    def setUp(self, *args):
+    MOCK_CONFIG = {
+        's': ['section'],
+        'k': ['key'],
+        'v': 'value',
+    }
+    MOCK_CONFIG_LOWER_CASE = {
+        's': ['section'],
+        'k': ['lower_case_key'],
+        'v': 'lower_case_value',
+    }
+    MOCK_CONFIG_UPPER_CASE = {
+        's': ['SECTION'],
+        'k': ['UPPER_CASE_KEY'],
+        'v': 'upper_case_value',
+    }
+
+    @file_exists_mock
+    def setUp(self):
         self.repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
 
-    @config_parser_mock()
+    @config_parser_mock(data=MOCK_CONFIG)
     def test_find_one(self):
         val = self.repo.find_one('section_key')
 
         self.assertEqual('value', val)
 
-    @config_parser_mock()
+    @config_parser_mock(data=MOCK_CONFIG)
     def test_find_all(self):
         data = self.repo.find_all()
         self.assertEqual({'section_key': 'value'}, data)
 
-    @config_parser_mock()
+    @config_parser_mock(data=MOCK_CONFIG)
     def test_find_one_wrong_key(self):
         val = self.repo.find_one('wrong_key')
 
@@ -325,21 +349,21 @@ class TestConfigRepository(BaseRepositoryTestCase, unittest.TestCase):
         with self.assertRaises(exceptions.DLabException):
             self.repo.file_path = file_path
 
-    @patch('os.path.isfile', return_value=True)
-    def test_change_file(self, *args):
+    @file_exists_mock
+    def test_change_file(self):
         file_path = '/tmp/new_test.ini'
         self.repo.file_path = file_path
 
         self.assertEqual(file_path, self.repo.file_path)
 
-    @config_parser_mock(data=('section', 'lower_case_key', 'lower_case_value'))
+    @config_parser_mock(data=MOCK_CONFIG_LOWER_CASE)
     def test_lower_case_sensitivity(self, *args):
         val = self.repo.find_one('section_lower_case_key')
 
         self.assertEqual('lower_case_value', val)
         self.assertIsNone(self.repo.find_one('SECTION_LOWER_CASE_KEY'))
 
-    @config_parser_mock(data=('SECTION', 'UPPER_CASE_KEY', 'upper_case_value'))
+    @config_parser_mock(data=MOCK_CONFIG_UPPER_CASE)
     def test_upper_case_sensitivity(self, *args):
         val = self.repo.find_one('SECTION_UPPER_CASE_KEY')
 
@@ -353,8 +377,8 @@ class TestSQLiteRepository(BaseRepositoryTestCase, unittest.TestCase):
     MOCK_FILE_PATH = './test.db'
     DB_TABLE = 'config'
 
-    @patch('os.path.isfile', return_value=True)
-    def setUp(self, *args):
+    @file_exists_mock
+    def setUp(self):
         self.repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
 
     def test_file_not_exist(self):
@@ -363,8 +387,8 @@ class TestSQLiteRepository(BaseRepositoryTestCase, unittest.TestCase):
         with self.assertRaises(exceptions.DLabException):
             self.repo.file_path = file_path
 
-    @patch('os.path.isfile', return_value=True)
-    def test_table_not_exists(self, *args):
+    @file_exists_mock
+    def test_table_not_exists(self):
         table_name = self.DB_TABLE
 
         # msg: 'no such table: config'
@@ -452,6 +476,7 @@ class TestChainOfRepositories(BaseRepositoryTestCase, unittest.TestCase):
         self.assertIsNone(self.repo.find_one('upper_case_key'))
 
     # TODO: finish this test
+    # TODO: do same check with constructor
     # def test_repo_validation(self):
     #     str_repo = 'string'
     #
