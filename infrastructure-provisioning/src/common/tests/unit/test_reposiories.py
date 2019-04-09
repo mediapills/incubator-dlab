@@ -253,9 +253,9 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
             self.repo.find_one('option')
 
 
-def config_repo_mock():
+def config_repo_mock(func):
 
-    def wrapper(cls):
+    def wrapper(*args):
         if six.PY2:
             parser = 'ConfigParser.ConfigParser.'
         else:
@@ -264,7 +264,8 @@ def config_repo_mock():
         with patch(parser + 'sections', return_value=['section']):
             with patch(parser + 'options', return_value=['key']):
                 with patch(parser + 'get', return_value='value'):
-                    return cls
+                    with patch('os.path.isfile', return_value=True):
+                        return func(*args)
 
     return wrapper
 
@@ -279,14 +280,6 @@ class TestConfigRepository(unittest.TestCase):
     else:
         PARSER = 'configparser.ConfigParser.'
 
-    PARSER_SECTIONS = PARSER + 'sections'
-    PARSER_OPTIONS = PARSER + 'options'
-    PARSER_GET = PARSER + 'get'
-
-    VALUE_SECTIONS = ['section']
-    VALUE_KEY = ['key']
-    VALUE_VALUE = 'value'
-
     def setUp(self):
         self.targets = {
             'sections': 'sections',
@@ -297,29 +290,20 @@ class TestConfigRepository(unittest.TestCase):
         for key, val in self.targets.items():
             self.targets.update({key: self.PARSER + val})
 
-    @patch('os.path.isfile', return_value=True)
-    @patch(PARSER_SECTIONS, return_value=VALUE_SECTIONS)
-    @patch(PARSER_OPTIONS, return_value=VALUE_KEY)
-    @patch(PARSER_GET, return_value=VALUE_VALUE)
+    @config_repo_mock
     def test_find_one(self, *args):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
         val = repo.find_one('section_key')
 
         self.assertEqual('value', val)
 
-    @patch('os.path.isfile', return_value=True)
-    @patch(PARSER_SECTIONS, return_value=VALUE_SECTIONS)
-    @patch(PARSER_OPTIONS, return_value=VALUE_KEY)
-    @patch(PARSER_GET, return_value=VALUE_VALUE)
+    @config_repo_mock
     def test_find_all(self, *args):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
         data = repo.find_all()
         self.assertEqual({'section_key': 'value'}, data)
 
-    @patch('os.path.isfile', return_value=True)
-    @patch(PARSER_SECTIONS, return_value=VALUE_SECTIONS)
-    @patch(PARSER_OPTIONS, return_value=VALUE_KEY)
-    @patch(PARSER_GET, return_value=VALUE_VALUE)
+    @config_repo_mock
     def test_find_one_wrong_key(self, * args):
         repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
         val = repo.find_one('wrong_key')
