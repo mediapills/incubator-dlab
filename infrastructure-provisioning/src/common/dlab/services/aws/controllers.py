@@ -30,22 +30,22 @@ from .nodes.ssn.node import AWSSSNNode
 @controllers.register('aws')
 class AWSController(BaseController):
 
-    def data_engine_node(self):
+    def get_data_engine_node(self):
         self._logger.debug('AWSController.data_engine_node')
         return AWSDataEngineNode()
 
-    def data_engine_server_node(self):
+    def get_data_engine_server_node(self):
         self._logger.debug('AWSController.data_engine_server_node')
         return AWSDataEngineServerNode()
 
-    def edge_node(self):
+    def get_edge_node(self):
         self._logger.debug('AWSController.edge_node')
         return AWSEDGENode()
 
-    def notebook_node(self):
+    def get_notebook_node(self):
         self._logger.debug('AWSController.notebook_node')
         return AWSNotebookNode()
 
-    def ssn_node(self):
+    def get_ssn_node(self):
         self._logger.debug('AWSController.ssn_node')
         return AWSSSNNode()

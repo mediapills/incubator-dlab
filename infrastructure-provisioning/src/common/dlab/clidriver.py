@@ -26,7 +26,7 @@ import logging
 
 from dlab.common.exceptions import DLabException
 from dlab.common.controllers import BaseController, registry as cls_registry
-from dlab.common.nodes.base import BaseNode
+from dlab.common.nodes import base as nodes
 
 LOG = logging.getLogger('dlabcli.clidriver')
 LOG_FORMAT = (
@@ -44,32 +44,46 @@ def create_clidriver():
 
 
 class CLIDriver(object):
+    NODES = [
+        nodes.SSNNode.NODE_TYPE,
+        nodes.EDGENode.NODE_TYPE,
+        nodes.NotebookNode.NODE_TYPE,
+        nodes.DataEngineNode.NODE_TYPE,
+        nodes.DataEngineServerNode.NODE_TYPE,
+    ]
 
-    @staticmethod
-    def _get_logger():
+    def __init__(self):
         logger = logging
         logger.basicConfig(level=logging.DEBUG)
-        return logger
+        self._logger = logger
 
-    @staticmethod
-    def _get_option():
+    def _get_controller(self):
+        # TODO: implement get option functionality
         option = 'aws'
-
-        ctl = cls_registry.find_one(option)
-        if ctl:
-            return option
-
-        # TODO: show message here if option not in list
-
-    def _execute(self):
-        logger = self._get_logger()
-        option = self._get_option()
+        # TODO: implement cli help if options not in list
 
         ctl_name = cls_registry.find_one(option)
+        ctl = ctl_name(self._logger)  # type: BaseController
         # TODO: set controller type
-        ctl = ctl_name(logger)  # type: BaseController
-        node = ctl.current_node()  # type: BaseNode
-        ctl.execute(node)
+
+        return ctl
+
+    @staticmethod
+    def _get_node(ctl):
+        # TODO: implement get option functionality
+        option = sys.argv[1]
+        # TODO: implement cli help if options not in list
+
+        return ctl.get_node(option)
+
+    @staticmethod
+    def _execute_node(node):
+        # TODO: implement get option functionality
+        action = sys.argv[2]
+        # TODO: implement cli help if options not in list
+
+        result = getattr(node, action)
+        return result
 
     @staticmethod
     def _show_error(msg):
@@ -79,12 +93,14 @@ class CLIDriver(object):
 
     def main(self):
         try:
-            self._execute()
+            ctl = self._get_controller()
+            node = self._get_node(ctl)  # type: nodes.BaseNode
+            self._execute_node(node)
             return 0
         # except UnknownArgumentError as e:
         #     return 255
         except DLabException:
-            LOG.debug("Exception caught in dlab lib", exc_info=True)
+            LOG.debug("Exception caught in dlabcli", exc_info=True)
             LOG.debug("Exiting with rc 255")
         except KeyboardInterrupt:
             # Shell standard for signals that terminate

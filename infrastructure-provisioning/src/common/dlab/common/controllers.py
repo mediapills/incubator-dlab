@@ -23,11 +23,11 @@
 
 import abc
 import six
-import sys
-import argparse
 
+from dlab.common.exceptions import DLabException
 from dlab.common.nodes import base as nodes
 from dlab.common.repositories import ArrayRepository
+
 
 registry = ArrayRepository()
 
@@ -44,17 +44,8 @@ def register(key):
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseController:
-    LC_NODE_CLI_HELP = 'TODO: Add help here'
 
-    NODE_GETTERS = {
-        nodes.SSNNode.NODE_TYPE: 'ssn_node',
-        nodes.EDGENode.NODE_TYPE: 'edge_node',
-        nodes.NotebookNode.NODE_TYPE: 'notebook_node',
-        nodes.DataEngineNode.NODE_TYPE: 'data_engine_node',
-        nodes.DataEngineServerNode.NODE_TYPE: 'data_engine_server_node',
-    }
-
-    parser = argparse.ArgumentParser()
+    LC_WRONG_NODE = 'There is no node type "{name}" in available nodes list'
 
     def __init__(self, logger):
         self._type = None
@@ -63,69 +54,38 @@ class BaseController:
             name=self.__class__.__name__
         ))
 
-    @staticmethod
-    def _get_node_argument():
-        return sys.argv[1]
+    def get_node(self, name):
+        if name == nodes.DataEngineNode.NODE_TYPE:
+            return self.get_data_engine_node()
+        elif name == nodes.DataEngineServerNode.NODE_TYPE:
+            return self.get_data_engine_server_node()
+        elif name == nodes.EDGENode.NODE_TYPE:
+            return self.get_edge_node()
+        elif name == nodes.NotebookNode.NODE_TYPE:
+            return self.get_notebook_node()
+        elif name == nodes.SSNNode.NODE_TYPE:
+            return self.get_ssn_node()
+        else:
+            DLabException(self.LC_WRONG_NODE.format(
+                name=name
+            ))
 
-    @property
-    def current_node(self):
-        node = self._get_node_argument()
-        self.parser.add_argument(
-            'node type',
-            choices=self.NODE_GETTERS.keys(),
-            help=self.LC_NODE_CLI_HELP,
-        )
-
-        if node in self.NODE_GETTERS.keys():
-            return getattr(self, self.NODE_GETTERS[node])
-
-        self.parser.parse_args([node])
-
-    @staticmethod
-    def _get_action_argument():
-        # TODO: use arguments repository
-        # TODO: redesign like aws cli and move in clidriver
-        return sys.argv[2]
-
-    @classmethod
-    def execute(cls, node):
-        action = cls._get_action_argument()
-        cls.parser.add_argument(
-            'action',
-            choices=node.ACTIONS,
-            help=cls.LC_NODE_CLI_HELP,
-        )
-
-        if node.has_action(action):
-            ref = getattr(node, action)
-            return ref()
-
-        cls.parser.parse_args([
-            cls._get_node_argument(),
-            action
-        ])
-
-    @property
     @abc.abstractmethod
-    def ssn_node(self):
+    def get_data_engine_node(self):
         pass
 
-    @property
     @abc.abstractmethod
-    def edge_node(self):
+    def get_data_engine_server_node(self):
         pass
 
-    @property
     @abc.abstractmethod
-    def notebook_node(self):
+    def get_edge_node(self):
         pass
 
-    @property
     @abc.abstractmethod
-    def data_engine_node(self):
+    def get_notebook_node(self):
         pass
 
-    @property
     @abc.abstractmethod
-    def data_engine_server_node(self):
+    def get_ssn_node(self):
         pass
