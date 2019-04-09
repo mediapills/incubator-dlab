@@ -26,10 +26,4 @@ from dlab.common import shell
 
 class TestSUDO(unittest.TestCase):
     def test_message_log(self):
-        shell.sudo(
-            'run',
-            shell=True,
-            pty=True,
-            combine_stderr=None,
-            user='root'
-        )
+        pass

@@ -27,6 +27,7 @@ import unittest
 from dlab.common import exceptions, repositories
 
 
+# TODO: check keys and values with quotes, single and double
 # TODO: move keys in kwargs and set default values
 def config_parser_mock(data):
 
@@ -36,13 +37,13 @@ def config_parser_mock(data):
 
             # TODO: get parser name from repository.ConfigParser
             if six.PY2:
-                parser = 'ConfigParser.ConfigParser.'
+                parser = 'ConfigParser.ConfigParser'
             else:
-                parser = 'configparser.ConfigParser.'
+                parser = 'configparser.ConfigParser'
 
-            with patch(parser + 'sections', return_value=data['s']):
-                with patch(parser + 'options', return_value=data['k']):
-                    with patch(parser + 'get', return_value=data['v']):
+            with patch(parser + '.sections', return_value=data['s']):
+                with patch(parser + '.options', return_value=data['k']):
+                    with patch(parser + '.get', return_value=data['v']):
                         return func(*args)
 
         return wrapper
@@ -74,6 +75,10 @@ def file_exists_mock(func):
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseRepositoryTestCase:
+
+    # TODO: check constructor data validation
+    def test_constructor_validation(self):
+        pass
 
     @abc.abstractmethod
     def test_find_one(self):
@@ -147,7 +152,6 @@ class TestArrayRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertEqual('other_value', val)
 
 
-# TODO: check how to exclude win specific tests
 class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
     # TODO: fix this dicts for win (uppercase them) to
     # TODO: skip ony case sensitive tests
