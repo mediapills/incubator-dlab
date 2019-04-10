@@ -27,8 +27,10 @@ from dlab.common.nodes.base import SSNNode
 @six.add_metaclass(abc.ABCMeta)
 class BaseSSNNode(SSNNode):
 
+    @abc.abstractmethod
     def run(self):
         pass
 
+    @abc.abstractmethod
     def terminate(self):
         pass

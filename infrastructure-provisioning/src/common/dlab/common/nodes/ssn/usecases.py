@@ -18,3 +18,28 @@
 # under the License.
 #
 # ******************************************************************************
+import abc
+import six
+
+from dlab.common.usecases import BaseUseCaseDeploy, BaseUseCaseProvision
+
+
+@six.add_metaclass(abc.ABCMeta)
+class BaseUseCaseSSNDeploy(BaseUseCaseDeploy):
+
+    @abc.abstractmethod
+    def _setup_infrastructure(self):
+        pass
+
+    @abc.abstractmethod
+    def _configuration(self):
+        pass
+
+    @abc.abstractmethod
+    def _create_instance(self):
+        pass
+
+    def execute(self):
+        self._setup_infrastructure()
+        self._configuration()
+        self._create_instance()

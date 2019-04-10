@@ -83,7 +83,7 @@ class CLIDriver(object):
         # TODO: implement cli help if options not in list
 
         result = getattr(node, action)
-        return result
+        return result()
 
     @staticmethod
     def _show_error(msg):

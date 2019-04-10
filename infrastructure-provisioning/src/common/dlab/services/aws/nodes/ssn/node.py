@@ -19,7 +19,14 @@
 #
 # ******************************************************************************
 from dlab.common.nodes.ssn.node import BaseSSNNode
+from dlab.services.aws.nodes.ssn import usecases
 
 
 class AWSSSNNode(BaseSSNNode):
-    pass
+
+    def run(self):
+        usecase = usecases.AWSUseCaseSSNDeploy()
+        usecase.execute()
+
+    def terminate(self):
+        print("AWS terminate UC: needs to be implemented")

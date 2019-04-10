@@ -19,7 +19,7 @@
 #
 # ******************************************************************************
 
-from dlab.common.usecases import BaseUseCaseSSNDeploy, BaseUseCaseSSNProvision
+from dlab.common.nodes.ssn.usecases import BaseUseCaseSSNDeploy
 from dlab.common.exceptions import DLabException
 
 
@@ -32,19 +32,4 @@ class GCPUseCaseSSNDeploy(BaseUseCaseSSNDeploy):
         raise DLabException('Needs to be implemented')
 
     def _create_instance(self):
-        raise DLabException('Needs to be implemented')
-
-
-class GCPUseCaseSSNProvision(BaseUseCaseSSNProvision):
-
-    def _install_db(self):
-        raise DLabException('Needs to be implemented')
-
-    def _create_db(self):
-        raise DLabException('Needs to be implemented')
-
-    def _build_ui(self):
-        raise DLabException('Needs to be implemented')
-
-    def _start_ui(self):
         raise DLabException('Needs to be implemented')
