@@ -54,6 +54,48 @@ class BaseRepository:
         return self.data
 
 
+@six.add_metaclass(abc.ABCMeta)
+class BaseLazyLoadRepository(BaseRepository):
+
+    @property
+    def data(self):
+        if not self._data:
+            self._load_data()
+        return self._data
+
+    @abc.abstractmethod
+    def _load_data(self):
+        pass
+
+
+@six.add_metaclass(abc.ABCMeta)
+class BaseFileRepository(BaseRepository):
+    # TODO: Rename error message
+    LC_NO_FILE = 'There is no file with path "{file_path}"'
+
+    def __init__(self, absolute_path):
+        super(BaseFileRepository, self).__init__()
+        self._file_path = None
+        self.file_path = absolute_path
+
+    @classmethod
+    def _validate(cls, file_path):
+        if not os.path.isfile(file_path):
+            raise DLabException(cls.LC_NO_FILE.format(
+                file_path=file_path
+            ))
+
+    @property
+    def file_path(self):
+        return self._file_path
+
+    @file_path.setter
+    def file_path(self, file_path):
+        self._validate(file_path)
+        self._file_path = file_path
+        self._data = {}
+
+
 class ArrayRepository(BaseRepository):
 
     def __init__(self, data=None):
@@ -70,6 +112,11 @@ class EnvironRepository(BaseRepository):
     def __init__(self):
         super(EnvironRepository, self).__init__()
         self._data.update(os.environ)
+
+    def find_one(self, key):
+        if sys.platform == 'win32':
+            key = key.upper()
+        return os.environ.get(key)
 
 
 class JSONContentRepository(BaseRepository):
@@ -94,20 +141,6 @@ class JSONContentRepository(BaseRepository):
             raise DLabException(self.LC_NOT_JSON_CONTENT)
 
         self._content = content
-
-
-@six.add_metaclass(abc.ABCMeta)
-class BaseLazyLoadRepository(BaseRepository):
-
-    @property
-    def data(self):
-        if not self._data:
-            self._load_data()
-        return self._data
-
-    @abc.abstractmethod
-    def _load_data(self):
-        pass
 
 
 class ArgumentsRepository(BaseLazyLoadRepository):
@@ -149,35 +182,7 @@ class ArgumentsRepository(BaseLazyLoadRepository):
         self._data = {}
 
 
-@six.add_metaclass(abc.ABCMeta)
-class BaseFileRepository(BaseLazyLoadRepository):
-    # TODO: Rename error message
-    LC_NO_FILE = 'There is no file with path "{file_path}"'
-
-    def __init__(self, absolute_path):
-        super(BaseFileRepository, self).__init__()
-        self._file_path = None
-        self.file_path = absolute_path
-
-    @classmethod
-    def _validate(cls, file_path):
-        if not os.path.isfile(file_path):
-            raise DLabException(cls.LC_NO_FILE.format(
-                file_path=file_path
-            ))
-
-    @property
-    def file_path(self):
-        return self._file_path
-
-    @file_path.setter
-    def file_path(self, file_path):
-        self._validate(file_path)
-        self._file_path = file_path
-        self._data = {}
-
-
-class ConfigRepository(BaseFileRepository):
+class ConfigRepository(BaseFileRepository, BaseLazyLoadRepository):
     VARIABLE_TEMPLATE = "{0}_{1}"
 
     def __init__(self, absolute_path):
@@ -195,30 +200,42 @@ class ConfigRepository(BaseFileRepository):
 
 class SQLiteRepository(BaseFileRepository):
 
-    GET_QUERY_TEMPLATE = 'SELECT key, value FROM {}'
+    ALL_QUERY_TEMPLATE = 'SELECT {key}, {value} FROM {table}'
+    ONE_QUERY_TEMPLATE = 'SELECT {value} FROM {table} where {key}=?'
+
     LC_READING_ERROR = 'Error while data reading with message "{msg}".'
 
-    def __init__(self, absolute_path, table_name):
+    def __init__(self, absolute_path, table_name, key_field_name='key', value_field_name='value'):
         super(SQLiteRepository, self).__init__(absolute_path)
-        self.table_name = table_name
+        self._table_name = table_name
+        self._key_field_name = key_field_name
+        self._value_field_name = value_field_name
+        self.__connection = None
+        select_configs = dict(
+            value=self._value_field_name,
+            table=self._table_name,
+            key=self._key_field_name
+        )
+        self.__select_one_query = self.ONE_QUERY_TEMPLATE.format(**select_configs)
+        self.__select_all_query = self.ALL_QUERY_TEMPLATE.format(**select_configs)
 
-    # TODO: getter and setter needs to be added for table_name
-    # TODO: create tests for table getters and setters
-    # TODO: there must be two different queries for one and all data
-    # TODO: does not mke sense to implement lazy load here
-    # TODO: maybe we can separate BaseFileRepository and BaseLazyLoadRepository
-    # TODO: maybe we can manage set key and value fields name
-    def _load_data(self):
-        try:
-            conn = sqlite3.connect(self.file_path)
-            cur = conn.execute(self.GET_QUERY_TEMPLATE.format(self.table_name))
-            values = cur.fetchall()
-            for row in values:
-                self._data[row[0]] = row[1]
-        except sqlite3.OperationalError as e:
-            raise DLabException(self.LC_READING_ERROR.format(
-                msg=str(e)
-            ))
+    @property
+    def connection(self):
+        if not self.__connection:
+            self.__connection = sqlite3.connect(self.file_path)
+        return self.__connection
+
+    def find_one(self, key):
+        cursor = self.connection.execute(self.__select_one_query, key)
+        return cursor.fetchone()[0]
+
+    def find_all(self):
+        data = {}
+        cursor = self.connection.execute(self.__select_all_query)
+        values = cursor.fetchall()
+        for row in values:
+            data[row[0]] = row[1]
+        return data
 
 
 class ChainOfRepositories(BaseRepository):
