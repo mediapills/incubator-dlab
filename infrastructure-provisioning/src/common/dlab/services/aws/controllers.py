@@ -48,4 +48,4 @@ class AWSController(BaseController):
 
     def get_ssn_node(self):
         self._logger.debug('AWSController.ssn_node')
-        return AWSSSNNode()
+        return AWSSSNNode(logger=self._logger)

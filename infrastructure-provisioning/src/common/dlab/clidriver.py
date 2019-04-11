@@ -27,10 +27,7 @@ import logging
 from dlab.common.exceptions import DLabException
 from dlab.common.controllers import BaseController, registry as cls_registry
 from dlab.common.nodes import base as nodes
-
-LOG = logging.getLogger('dlabcli.clidriver')
-LOG_FORMAT = (
-    '%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s')
+from dlab.common.logger import Logger
 
 
 def main():
@@ -53,9 +50,7 @@ class CLIDriver(object):
     ]
 
     def __init__(self):
-        logger = logging
-        logger.basicConfig(level=logging.DEBUG)
-        self._logger = logger
+        self._logger = Logger()
 
     def _get_controller(self):
         # TODO: implement get option functionality
@@ -85,9 +80,8 @@ class CLIDriver(object):
         result = getattr(node, action)
         return result()
 
-    @staticmethod
-    def _show_error(msg):
-        LOG.debug(msg, exc_info=True)
+    def _show_error(self, msg):
+        self._logger.debug(msg)
         sys.stderr.write(msg)
         sys.stderr.write('\n')
 
@@ -100,8 +94,8 @@ class CLIDriver(object):
         # except UnknownArgumentError as e:
         #     return 255
         except DLabException:
-            LOG.debug("Exception caught in dlabcli", exc_info=True)
-            LOG.debug("Exiting with rc 255")
+            self._logger.debug("Exception caught in dlabcli")
+            self._logger.debug("Exiting with rc 255")
         except KeyboardInterrupt:
             # Shell standard for signals that terminate
             # the process is to return 128 + signum, in this case
@@ -109,6 +103,6 @@ class CLIDriver(object):
             sys.stdout.write("\n")
             return 128 + signal.SIGINT
         except Exception:
-            LOG.debug("Exception caught in main()", exc_info=True)
-            LOG.debug("Exiting with rc 255")
+            self._logger.debug("Exception caught in main()")
+            self._logger.debug("Exiting with rc 255")
             return 255

@@ -40,6 +40,8 @@ else:
 @six.add_metaclass(abc.ABCMeta)
 class BaseRepository:
 
+    LC_INVALID_CONTEXT_TYPE = 'Invalid context type, should be instance of {}'
+
     def __init__(self):
         self._data = {}
 
@@ -80,10 +82,15 @@ class BaseFileRepository(BaseRepository):
 
     @classmethod
     def _validate(cls, file_path):
+        if not isinstance(file_path, str):
+            raise DLabException(
+                cls.LC_INVALID_CONTEXT_TYPE.format(str.__name__)
+            )
+
         if not os.path.isfile(file_path):
-            raise DLabException(cls.LC_NO_FILE.format(
-                file_path=file_path
-            ))
+            raise DLabException(
+                cls.LC_NO_FILE.format(file_path=file_path)
+            )
 
     @property
     def file_path(self):
@@ -101,10 +108,17 @@ class ArrayRepository(BaseRepository):
     def __init__(self, data=None):
         super(ArrayRepository, self).__init__()
         if data is not None:
+            self._validate(data)
             self._data = data
 
     def append(self, key, value):
         self._data[key] = value
+
+    def _validate(self, data):
+        if not isinstance(data, dict):
+            raise DLabException(
+                self.LC_INVALID_CONTEXT_TYPE.format(str.__name__)
+            )
 
 
 # FIXME: there can be problems with find_all method for win32 platform
@@ -130,10 +144,15 @@ class JSONContentRepository(BaseRepository):
 
     @property
     def content(self):
+
         return self._content
 
     @content.setter
     def content(self, content):
+        if not isinstance(content, str):
+            raise DLabException(
+                self.LC_INVALID_CONTEXT_TYPE.format(str.__name__)
+            )
 
         try:
             json_data = json.loads(content)
@@ -152,9 +171,22 @@ class ArgumentsRepository(BaseLazyLoadRepository):
         super(ArgumentsRepository, self).__init__()
         # TODO: check is arg_parse type of ArgumentParser
         if arg_parse is None:
-            self._arg_parse = argparse.ArgumentParser()
+            self.arg_parse = argparse.ArgumentParser()
         else:
-            self._arg_parse = arg_parse
+            self.arg_parse = arg_parse
+
+    @property
+    def arg_parse(self):
+        return self._arg_parse
+
+    @arg_parse.setter
+    def arg_parse(self, arg_parse):
+        if not isinstance(arg_parse, argparse.ArgumentParser):
+            raise DLabException(
+                self.LC_INVALID_CONTEXT_TYPE.format(str.__name__)
+            )
+
+        self._arg_parse = arg_parse
 
     @staticmethod
     @contextmanager
@@ -207,9 +239,12 @@ class SQLiteRepository(BaseFileRepository):
 
     def __init__(self, absolute_path, table_name, key_field_name='key', value_field_name='value'):
         super(SQLiteRepository, self).__init__(absolute_path)
+
+        # TODO: table, key and value needs to be string
         self._table_name = table_name
         self._key_field_name = key_field_name
         self._value_field_name = value_field_name
+
         self.__connection = None
 
         settings = dict(

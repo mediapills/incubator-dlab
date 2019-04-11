@@ -36,11 +36,10 @@ def config_parser_mock(data):
     def decorator(func):
 
         def wrapper(*args):
-            # TODO: get parser name from repository.ConfigParser
-            if six.PY2:
-                parser = 'ConfigParser.ConfigParser'
-            else:
-                parser = 'configparser.ConfigParser'
+            parser = '.'.join([
+                repositories.ConfigParser.__module__,
+                repositories.ConfigParser.__name__
+            ])
 
             with patch(parser + '.sections', return_value=data['s']):
                 with patch(parser + '.options', return_value=data['k']):
@@ -371,18 +370,31 @@ class TestConfigRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertEqual('upper_case_value', val)
         self.assertIsNone(self.repo.find_one('upper_case_key'))
 
+    def test_constructor_exception(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo = repositories.ConfigRepository(None)
+
+    @file_exists_mock
+    def test_file_path_exception(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo.file_path = None
+
 
 # TODO: investigate why after test i got new files test.db :)
 class TestSQLiteRepository(unittest.TestCase):
     MOCK_FILE_PATH = 'test.db'
     DB_TABLE = 'config'
+
     DATA = (('key', 'value'),)
     DATA_LOWER_CASE = (('lower_case_key', 'lower_case_value'),)
     DATA_UPPER_CASE = (('UPPER_CASE_KEY', 'upper_case_value'),)
 
     @file_exists_mock
     def setUp(self):
-        self.repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
+        self.repo = repositories.SQLiteRepository(
+            absolute_path=self.MOCK_FILE_PATH,
+            table_name=self.DB_TABLE
+        )
 
     def test_file_not_exist(self):
         file_path = 'new_test.ini'
@@ -405,6 +417,26 @@ class TestSQLiteRepository(unittest.TestCase):
     def test_table_not_found_exception(self):
         with self.assertRaises(exceptions.DLabException):
             self.repo.find_all()
+
+    def test_constructor_wrong_file_type_exception(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo = self.repo = repositories.SQLiteRepository(
+                absolute_path=None,
+                table_name=self.DB_TABLE
+            )
+
+    # TODO: check wrong table name
+    # def test_constructor_wrong_table_type_exception(self):
+    #     with self.assertRaises(exceptions.DLabException):
+    #         self.repo = repositories.SQLiteRepository(
+    #             absolute_path=self.MOCK_FILE_PATH,
+    #             table_name=None
+    #         )
+
+    @file_exists_mock
+    def test_file_path_exception(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo.file_path = None
 
 
 class TestChainOfRepositories(BaseRepositoryTestCase, unittest.TestCase):

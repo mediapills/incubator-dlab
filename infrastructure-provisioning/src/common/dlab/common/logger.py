@@ -18,6 +18,7 @@
 # under the License.
 #
 # ******************************************************************************
+import logging
 
 #  TODO: Log Formatter which formats messages by RFC 3164 - BSD-syslog protocol
 
@@ -28,42 +29,33 @@ INFO = 20
 DEBUG = 10
 
 
-def formatter():
-    return '%(message)s'
+class Logger:
 
+    def __init__(self):
+        logging.basicConfig(level=logging.DEBUG)
+        self._logger = logging.getLogger('dlabcli.logger')  # type: logging.Logger
 
-def log(level, msg):
-    """
-    Low-level logging routine which creates a LogRecord and then calls
-    all the handlers of this logger to handle the record.
-    """
-    print(msg)
+    def debug(self, msg):
+        """
+        Delegate an debug call to the underlying logger.
+        """
+        return self._logger.debug(msg)
 
+    def info(self, msg):
+        """
+        Delegate an info call to the underlying logger.
+        """
+        return self._logger.info(msg)
 
-def debug(msg):
-    """
-    Delegate an debug call to the underlying logger.
-    """
-    return log(DEBUG, msg)
+    def warn(self, msg):
+        """
+        Delegate a warning call to the underlying logger.
+        """
+        return self._logger.warn(msg)
 
-
-def info(msg):
-    """
-    Delegate an info call to the underlying logger.
-    """
-    return log(INFO, msg)
-
-
-def warn(msg):
-    """
-    Delegate a warning call to the underlying logger.
-    """
-    return log(WARN, msg)
-
-
-def err(msg):
-    """
-    Delegate an error call to the underlying logger.
-    """
-    log(ERROR, msg)
-    exit(1)
+    def err(self, msg):
+        """
+        Delegate an error call to the underlying logger.
+        """
+        self._logger.error(msg)
+        exit(1)

@@ -21,11 +21,11 @@
 import abc
 import six
 
-from dlab.common.usecases import BaseUseCaseDeploy, BaseUseCaseProvision
+from dlab.common import usecases
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseUseCaseSSNDeploy(BaseUseCaseDeploy):
+class BaseUseCaseSSNDeploy(usecases.BaseUseCaseDeploy):
 
     @abc.abstractmethod
     def _setup_infrastructure(self):
@@ -43,3 +43,10 @@ class BaseUseCaseSSNDeploy(BaseUseCaseDeploy):
         self._setup_infrastructure()
         self._configuration()
         self._create_instance()
+
+
+@six.add_metaclass(abc.ABCMeta)
+class BaseUseCaseSSNProvision(usecases.BaseUseCaseProvision):
+
+    def execute(self):
+        pass

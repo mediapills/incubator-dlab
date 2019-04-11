@@ -20,13 +20,21 @@
 # ******************************************************************************
 from dlab.common.nodes.ssn.node import BaseSSNNode
 from dlab.services.aws.nodes.ssn import usecases
+from dlab.common.logger import Logger
 
 
 class AWSSSNNode(BaseSSNNode):
+    def __init__(self, logger):
+        self._logger = logger  # type: Logger
 
     def run(self):
-        usecase = usecases.AWSUseCaseSSNDeploy()
-        usecase.execute()
+        usecases.AWSUseCaseSSNDeploy(
+            logger=self._logger
+        ).execute()
+
+        usecases.AWSUseCaseSSNProvision(
+            logger=self._logger
+        ).execute()
 
     def terminate(self):
-        print("AWS terminate UC: needs to be implemented")
+        self._logger.err("AWS terminate UC: needs to be implemented")

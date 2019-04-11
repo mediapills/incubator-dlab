@@ -39,17 +39,24 @@
 # under the License.
 #
 # ******************************************************************************
-from dlab.common.nodes.ssn.usecases import BaseUseCaseSSNDeploy
-from dlab.common.exceptions import DLabException
+from dlab.common.nodes.ssn import usecases
 
 
-class AWSUseCaseSSNDeploy(BaseUseCaseSSNDeploy):
+class AWSUseCaseSSNDeploy(usecases.BaseUseCaseSSNDeploy):
+
+    def __init__(self, logger):
+        self._logger = logger
 
     def _setup_infrastructure(self):
-        print('AWS setup_infrastructure: needs to be implemented')
+        self._logger.debug('AWS setup_infrastructure: needs to be implemented')
 
     def _configuration(self):
-        print('AWS configuration: needs to be implemented')
+        self._logger.debug('AWS configuration: needs to be implemented')
 
     def _create_instance(self):
-        print('AWS create_instance: needs to be implemented')
+        self._logger.debug('AWS create_instance: needs to be implemented')
+
+
+class AWSUseCaseSSNProvision(usecases.BaseUseCaseSSNProvision):
+    def __init__(self, logger):
+        self._logger = logger
