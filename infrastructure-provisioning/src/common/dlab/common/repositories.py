@@ -39,9 +39,13 @@ else:
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseRepository:
+    INVALID_CONTEXT_TYPE = 'Invalid context type, should be instance of {}'
 
     def __init__(self):
         self._data = {}
+
+    def _validate(self, data):
+        pass
 
     @property
     def data(self):
@@ -70,8 +74,8 @@ class BaseLazyLoadRepository(BaseRepository):
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseFileRepository(BaseRepository):
-    # TODO: Rename error message
-    LC_NO_FILE = 'There is no file with path "{file_path}"'
+
+    LC_NO_FILE = 'There is no file associated with path "{file_path}"'
 
     def __init__(self, absolute_path):
         super(BaseFileRepository, self).__init__()
@@ -80,6 +84,9 @@ class BaseFileRepository(BaseRepository):
 
     @classmethod
     def _validate(cls, file_path):
+        if not isinstance(file_path, str):
+            raise DLabException(cls.INVALID_CONTEXT_TYPE.format(str.__name__))
+
         if not os.path.isfile(file_path):
             raise DLabException(cls.LC_NO_FILE.format(
                 file_path=file_path
@@ -101,10 +108,15 @@ class ArrayRepository(BaseRepository):
     def __init__(self, data=None):
         super(ArrayRepository, self).__init__()
         if data is not None:
+            self._validate(data)
             self._data = data
 
     def append(self, key, value):
         self._data[key] = value
+
+    def _validate(self, data):
+        if not isinstance(data, dict):
+            raise DLabException(self.INVALID_CONTEXT_TYPE.format(dict.__name__))
 
 
 # FIXME: there can be problems with find_all method for win32 platform
@@ -126,7 +138,12 @@ class JSONContentRepository(BaseRepository):
 
     def __init__(self, content=None):
         super(JSONContentRepository, self).__init__()
+        self._validate(content)
         self.content = content
+
+    def _validate(self, data):
+        if not isinstance(data, str):
+            raise DLabException(self.INVALID_CONTEXT_TYPE.format(str.__name__))
 
     @property
     def content(self):
@@ -150,11 +167,16 @@ class ArgumentsRepository(BaseLazyLoadRepository):
 
     def __init__(self, arg_parse=None):
         super(ArgumentsRepository, self).__init__()
-        # TODO: check is arg_parse type of ArgumentParser
+
         if arg_parse is None:
             self._arg_parse = argparse.ArgumentParser()
         else:
+            self._validate(arg_parse)
             self._arg_parse = arg_parse
+
+    def _validate(self, arg_parse):
+        if not isinstance(arg_parse, argparse.ArgumentParser):
+            raise DLabException(self.INVALID_CONTEXT_TYPE.format(argparse.ArgumentParser.__name__))
 
     @staticmethod
     @contextmanager
@@ -248,11 +270,24 @@ class SQLiteRepository(BaseFileRepository):
 class ChainOfRepositories(BaseRepository):
     def __init__(self, repos=()):
         super(ChainOfRepositories, self).__init__()
-        # TODO: there is already register function for this with validation
+        self.validate_multi(repos)
         self._repos = repos or []
 
-    # TODO: add repo validation
+    def validate_multi(self, repos):
+        if not isinstance(repos, list) and not isinstance(repos, tuple):
+            raise DLabException(self.INVALID_CONTEXT_TYPE.format(
+                "{} or {}".format(list.__name__, tuple.__name__)
+            ))
+
+        for repo in repos:
+            self._validate(repo)
+
+    def _validate(self, repo):
+        if not issubclass(type(repo), BaseRepository):
+            raise DLabException(self.INVALID_CONTEXT_TYPE.format(BaseRepository.__name__))
+
     def register(self, repo):
+        self._validate(repo)
         self._repos.append(repo)
 
     def find_one(self, key):
