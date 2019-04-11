@@ -19,6 +19,7 @@
 #
 # ******************************************************************************
 import abc
+import argparse
 import sys
 import six
 import unittest
@@ -28,20 +29,12 @@ from mock import patch
 
 
 # TODO: check keys and values with quotes, single and double
-# TODO: add constructor correct data type input test
-# TODO: add setter value data type check
-
 def config_parser_mock(data):
 
     def decorator(func):
 
         def wrapper(*args):
-            # TODO: get parser name from repository.ConfigParser
-            if six.PY2:
-                parser = 'ConfigParser.ConfigParser'
-            else:
-                parser = 'configparser.ConfigParser'
-
+            parser = '.'.join([repositories.ConfigParser.__module__, repositories.ConfigParser.__name__])
             with patch(parser + '.sections', return_value=data['s']):
                 with patch(parser + '.options', return_value=data['k']):
                     with patch(parser + '.get', return_value=data['v']):
@@ -98,11 +91,26 @@ class BaseRepositoryTestCase:
     def test_upper_case_sensitivity(self):
         pass
 
+    def test_valid_input_data(self):
+        pass
+
+    def test_invalid_input_data(self):
+        pass
+
 
 class TestArrayRepository(BaseRepositoryTestCase, unittest.TestCase):
 
     def setUp(self):
         self.repo = repositories.ArrayRepository()
+
+    def test_valid_input_data(self):
+        self.repo = repositories.ArrayRepository({'key': 'value'})
+
+        self.assertIsInstance(self.repo._data, dict)
+
+    def test_invalid_input_data(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo = repositories.ArrayRepository('value')
 
     def test_find_one(self):
         self.repo.append('key', 'value')
@@ -164,6 +172,7 @@ class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertEqual('value', val)
 
     @patch.dict('os.environ', MOCK_ENVIRON)
+    @unittest.skipIf(sys.platform == 'win32', reason="does not run on windows")
     def test_find_all(self):
         self.repo = repositories.EnvironRepository()
         data = self.repo.find_all()
@@ -199,6 +208,15 @@ class TestJSONContentRepository(BaseRepositoryTestCase, unittest.TestCase):
     MOCK_CONTENT = '{"key": "value"}'
     MOCK_CONTENT_LOWER_CASE = '{"lower_case_key": "lower_case_value"}'
     MOCK_CONTENT_UPPER_CASE = '{"UPPER_CASE_KEY": "upper_case_value"}'
+
+    def test_valid_input_data(self):
+        self.repo = repositories.JSONContentRepository(self.MOCK_CONTENT)
+
+        self.assertIsInstance(self.repo._data, dict)
+
+    def test_invalid_input_data(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo = repositories.JSONContentRepository('value')
 
     def test_find_one(self):
         self.repo = repositories.JSONContentRepository(self.MOCK_CONTENT)
@@ -262,6 +280,16 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
 
     def setUp(self):
         self.repo = repositories.ArgumentsRepository()
+
+    def test_valid_input_data(self):
+        _arg_parse = argparse.ArgumentParser()
+        self.repo = repositories.ArgumentsRepository(_arg_parse)
+
+        self.assertIsInstance(self.repo._arg_parse, argparse.ArgumentParser)
+
+    def test_invalid_input_data(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo = repositories.ArgumentsRepository('value')
 
     @patch('sys.argv', MOCK_ARGS)
     def test_find_one(self):
@@ -327,6 +355,13 @@ class TestConfigRepository(BaseRepositoryTestCase, unittest.TestCase):
     def setUp(self):
         self.repo = repositories.ConfigRepository(self.MOCK_FILE_PATH)
 
+    def test_valid_input_data(self):
+        self.assertIsInstance(self.repo.file_path, str)
+
+    def test_invalid_input_data(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo = repositories.ConfigRepository({})
+
     @config_parser_mock(data=MOCK_CONFIG)
     def test_find_one(self):
         val = self.repo.find_one('section_key')
@@ -384,6 +419,13 @@ class TestSQLiteRepository(unittest.TestCase):
     def setUp(self):
         self.repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
 
+    def test_valid_input_data(self):
+        self.assertIsInstance(self.repo.file_path, str)
+
+    def test_invalid_input_data(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo = repositories.ConfigRepository({})
+
     def test_file_not_exist(self):
         file_path = 'new_test.ini'
 
@@ -415,6 +457,28 @@ class TestChainOfRepositories(BaseRepositoryTestCase, unittest.TestCase):
 
         self.repo = repositories.ChainOfRepositories()
         self.repo.register(arr)
+
+    def test_valid_input_data(self):
+        arr = repositories.ArrayRepository()
+        self.repo = repositories.ChainOfRepositories(repos=[arr])
+
+        self.assertIn(arr, self.repo._repos)
+
+    def test_invalid_input_data(self):
+
+        with self.assertRaises(exceptions.DLabException):
+            repo = repositories.ChainOfRepositories(repos='')
+
+    def test_append_valid(self):
+        env = repositories.EnvironRepository()
+        self.repo.register(env)
+
+        self.assertIn(env, self.repo._repos)
+
+    def test_append_invalid_repo(self):
+
+        with self.assertRaises(exceptions.DLabException):
+            self.repo.register('')
 
     def test_find_one(self):
         val = self.repo.find_one('key')
