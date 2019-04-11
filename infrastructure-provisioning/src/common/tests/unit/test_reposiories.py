@@ -19,22 +19,23 @@
 #
 # ******************************************************************************
 import abc
-from mock import patch
 import sys
 import six
 import unittest
 
 from dlab.common import exceptions, repositories
+from mock import patch
 
 
 # TODO: check keys and values with quotes, single and double
-# TODO: move keys in kwargs and set default values
+# TODO: add constructor correct data type input test
+# TODO: add setter value data type check
+
 def config_parser_mock(data):
 
     def decorator(func):
 
         def wrapper(*args):
-
             # TODO: get parser name from repository.ConfigParser
             if six.PY2:
                 parser = 'ConfigParser.ConfigParser'
@@ -51,17 +52,18 @@ def config_parser_mock(data):
     return decorator
 
 
-def sqlite3_mock(func):
+def sqlite3_mock(data=()):
 
-    def wrapper(*args):
-        with patch('sqlite3.connect') as con:
-            con.return_value.execute.return_value.fetchall.return_value = [
-                ('section_key', 'value')
-            ]
-            with patch('os.path.isfile', return_value=True):
+    def decorator(func):
+
+        def wrapper(*args):
+            with patch('sqlite3.connect') as con:
+                con.return_value.execute.return_value.fetchall.return_value = data
                 return func(*args)
 
-    return wrapper
+        return wrapper
+
+    return decorator
 
 
 def file_exists_mock(func):
@@ -75,10 +77,6 @@ def file_exists_mock(func):
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseRepositoryTestCase:
-
-    # TODO: check constructor data validation
-    def test_constructor_validation(self):
-        pass
 
     @abc.abstractmethod
     def test_find_one(self):
@@ -154,7 +152,6 @@ class TestArrayRepository(BaseRepositoryTestCase, unittest.TestCase):
 
 class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
     # TODO: fix this dicts for win (uppercase them) to
-    # TODO: skip ony case sensitive tests
     MOCK_ENVIRON = {'key': 'value'}
     MOCK_ENVIRON_LOWER_CASE = {'lower_case_key': 'lower_case_value'}
     MOCK_ENVIRON_UPPER_CASE = {'UPPER_CASE_KEY': 'upper_case_value'}
@@ -308,7 +305,7 @@ class TestArgumentsRepository(BaseRepositoryTestCase, unittest.TestCase):
 
 
 class TestConfigRepository(BaseRepositoryTestCase, unittest.TestCase):
-    MOCK_FILE_PATH = '/tmp/test.ini'
+    MOCK_FILE_PATH = '/test.ini'
 
     MOCK_CONFIG = {
         's': ['section'],
@@ -348,92 +345,66 @@ class TestConfigRepository(BaseRepositoryTestCase, unittest.TestCase):
         self.assertIsNone(val)
 
     def test_file_not_exist(self):
-        file_path = '/tmp/new_test.ini'
+        file_path = 'new_test.ini'
 
         with self.assertRaises(exceptions.DLabException):
             self.repo.file_path = file_path
 
     @file_exists_mock
     def test_change_file(self):
-        file_path = '/tmp/new_test.ini'
+        file_path = 'new_test.ini'
         self.repo.file_path = file_path
 
         self.assertEqual(file_path, self.repo.file_path)
 
     @config_parser_mock(data=MOCK_CONFIG_LOWER_CASE)
-    def test_lower_case_sensitivity(self, *args):
+    def test_lower_case_sensitivity(self):
         val = self.repo.find_one('section_lower_case_key')
 
         self.assertEqual('lower_case_value', val)
         self.assertIsNone(self.repo.find_one('SECTION_LOWER_CASE_KEY'))
 
     @config_parser_mock(data=MOCK_CONFIG_UPPER_CASE)
-    def test_upper_case_sensitivity(self, *args):
+    def test_upper_case_sensitivity(self):
         val = self.repo.find_one('SECTION_UPPER_CASE_KEY')
 
         self.assertEqual('upper_case_value', val)
         self.assertIsNone(self.repo.find_one('upper_case_key'))
 
 
-# TODO: mocks needs to be redesigned
 # TODO: investigate why after test i got new files test.db :)
-class TestSQLiteRepository(BaseRepositoryTestCase, unittest.TestCase):
-    MOCK_FILE_PATH = './test.db'
+class TestSQLiteRepository(unittest.TestCase):
+    MOCK_FILE_PATH = 'test.db'
     DB_TABLE = 'config'
+    DATA = (('key', 'value'),)
+    DATA_LOWER_CASE = (('lower_case_key', 'lower_case_value'),)
+    DATA_UPPER_CASE = (('UPPER_CASE_KEY', 'upper_case_value'),)
 
     @file_exists_mock
     def setUp(self):
         self.repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
 
     def test_file_not_exist(self):
-        file_path = '/tmp/new_test.ini'
+        file_path = 'new_test.ini'
 
         with self.assertRaises(exceptions.DLabException):
             self.repo.file_path = file_path
 
-    @file_exists_mock
-    def test_table_not_exists(self):
-        table_name = self.DB_TABLE
+    @sqlite3_mock(data=DATA)
+    def test_find_one(self):
+        val = self.repo.find_one('key')
 
-        # msg: 'no such table: config'
-        with self.assertRaises(exceptions.DLabException):
-            repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, table_name)
-            repo.data()
+        self.assertEqual('value', val)
 
-    @sqlite3_mock
-    def test_find_one(self, *args):
-        config_repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
-        config = config_repo.find_one('section_key')
-        self.assertEqual('value', config)
-
-    @sqlite3_mock
-    def test_find_one_wrong_key(self):
-        config_repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
-        config = config_repo.find_one('test')
-        self.assertIsNone(config)
-
-    @sqlite3_mock
+    @sqlite3_mock(data=DATA)
     def test_find_all(self):
-        config_repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
-        configs = config_repo.find_all()
-        self.assertEqual({'section_key': 'value'}, configs)
+        data = self.repo.find_all()
 
-    @sqlite3_mock
-    def test_lower_case_sensitivity(self, *args):
-        self.repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
-        val = self.repo.find_one('section_key')
-        self.assertEqual('value', val)
-        self.assertIsNone(self.repo.find_one('SECTION_KEY'))
+        self.assertEqual({'key': 'value'}, data)
 
-    @patch('os.path.isfile', return_value=True)
-    @patch('sqlite3.connect')
-    def test_upper_case_sensitivity(self, con, *args):
-        con.return_value.execute.return_value.fetchall.return_value = (('SECTION_KEY', 'value'),)
-        self.repo = repositories.SQLiteRepository(self.MOCK_FILE_PATH, self.DB_TABLE)
-        val = self.repo.find_one('SECTION_KEY')
-
-        self.assertEqual('value', val)
-        self.assertIsNone(self.repo.find_one('section_key'))
+    def test_table_not_found_exception(self):
+        with self.assertRaises(exceptions.DLabException):
+            self.repo.find_all()
 
 
 class TestChainOfRepositories(BaseRepositoryTestCase, unittest.TestCase):
@@ -450,8 +421,7 @@ class TestChainOfRepositories(BaseRepositoryTestCase, unittest.TestCase):
 
         self.assertEqual('value', val)
 
-    @patch('dlab.common.repositories.ConfigRepository')
-    def test_find_all(self, repository):
+    def test_find_all(self):
         data = self.repo.find_all()
 
         self.assertEqual({'key': 'value'}, data)
@@ -478,11 +448,3 @@ class TestChainOfRepositories(BaseRepositoryTestCase, unittest.TestCase):
 
         self.assertEqual('upper_case_value', val)
         self.assertIsNone(self.repo.find_one('upper_case_key'))
-
-    # TODO: finish this test
-    # TODO: do same check with constructor
-    # def test_repo_validation(self):
-    #     str_repo = 'string'
-    #
-    #     with self.assertRaises(exceptions.DLabException):
-    #         self.repo.register(str_repo)
