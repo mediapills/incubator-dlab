@@ -39,10 +39,10 @@ class BaseNotebookNode(NotebookNode):
     def stop(self):
         pass
 
-    def install_libraries(self):
+    def libraries_install(self):
         pass
 
-    def show_libraries(self):
+    def libraries_show(self):
         pass
 
     def configure(self):

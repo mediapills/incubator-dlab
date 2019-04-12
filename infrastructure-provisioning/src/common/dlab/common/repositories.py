@@ -169,7 +169,6 @@ class ArgumentsRepository(BaseLazyLoadRepository):
 
     def __init__(self, arg_parse=None):
         super(ArgumentsRepository, self).__init__()
-        # TODO: check is arg_parse type of ArgumentParser
         if arg_parse is None:
             self.arg_parse = argparse.ArgumentParser()
         else:
@@ -283,11 +282,23 @@ class SQLiteRepository(BaseFileRepository):
 class ChainOfRepositories(BaseRepository):
     def __init__(self, repos=()):
         super(ChainOfRepositories, self).__init__()
-        # TODO: there is already register function for this with validation
-        self._repos = repos or []
 
-    # TODO: add repo validation
+        if not isinstance(repos, list) and not isinstance(repos, tuple):
+            raise DLabException(self.LC_INVALID_CONTEXT_TYPE.format(
+                "{} or {}".format(list.__name__, tuple.__name__)
+            ))
+
+        self._repos = []
+
+        for repo in repos:
+            self.register(repo)
+
     def register(self, repo):
+        if not issubclass(type(repo), BaseRepository):
+            raise DLabException(
+                self.LC_INVALID_CONTEXT_TYPE.format(BaseRepository.__name__)
+            )
+
         self._repos.append(repo)
 
     def find_one(self, key):

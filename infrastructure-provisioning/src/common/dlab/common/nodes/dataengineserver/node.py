@@ -33,8 +33,8 @@ class BaseDataEngineServerNode(DataEngineServerNode):
     def terminate(self):
         pass
 
-    def install_libraries(self):
+    def libraries_install(self):
         pass
 
-    def show_libraries(self):
+    def libraries_show(self):
         pass

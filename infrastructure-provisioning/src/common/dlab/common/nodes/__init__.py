@@ -24,3 +24,19 @@ import dlab.common.nodes.dataengineserver                          # noqa: F401
 import dlab.common.nodes.edge                                      # noqa: F401
 import dlab.common.nodes.notebook                                  # noqa: F401
 import dlab.common.nodes.ssn                                       # noqa: F401
+
+from dlab.common.repositories import ArrayRepository
+
+__all__ = ['register']
+
+registry = ArrayRepository()
+
+
+def register(key):
+    """Register a class as a plug-in"""
+    def wrapper(cls):
+        # TODO show error if key already exists
+        registry.append(key, cls)
+        return cls
+
+    return wrapper

@@ -25,23 +25,19 @@ import abc
 import six
 
 from dlab.common.exceptions import DLabException
+from dlab.common.nodes import actions
+import dlab.common.nodes as nodes
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseProcessManager:
 
-    ACTION_RUN = 'run'
-    ACTION_TERMINATE = 'terminate'
-
-    ACTIONS = (
-        ACTION_RUN,
-        ACTION_TERMINATE,
-    )
-
+    @actions.register(actions.ACTION_RUN)
     @abc.abstractmethod
     def run(self):
         pass
 
+    @actions.register(actions.ACTION_TERMINATE)
     @abc.abstractmethod
     def terminate(self):
         pass
@@ -50,18 +46,12 @@ class BaseProcessManager:
 @six.add_metaclass(abc.ABCMeta)
 class BaseServiceManager:
 
-    ACTION_START = 'start'
-    ACTION_STOP = 'stop'
-
-    ACTIONS = (
-        ACTION_START,
-        ACTION_STOP,
-    )
-
+    @actions.register(actions.ACTION_START)
     @abc.abstractmethod
     def start(self):
         pass
 
+    @actions.register(actions.ACTION_STOP)
     @abc.abstractmethod
     def stop(self):
         pass
@@ -70,20 +60,14 @@ class BaseServiceManager:
 @six.add_metaclass(abc.ABCMeta)
 class BaseLibrariesManager:
 
-    ACTION_INSTALL_LIBRARIES = 'install_libraries'
-    ACTION_SHOW_LIBRARIES = 'show_libraries'
-
-    ACTIONS = (
-        ACTION_INSTALL_LIBRARIES,
-        ACTION_SHOW_LIBRARIES,
-    )
-
+    @actions.register(actions.ACTION_LIBRARIES_INSTALL)
     @abc.abstractmethod
-    def install_libraries(self):
+    def libraries_install(self):
         pass
 
+    @actions.register(actions.ACTION_LIBRARIES_SHOW)
     @abc.abstractmethod
-    def show_libraries(self):
+    def libraries_show(self):
         pass
 
 
@@ -119,52 +103,35 @@ class BaseNode:
         return method()
 
 
+@nodes.register('ssn')
 @six.add_metaclass(abc.ABCMeta)
 class SSNNode(BaseNode, BaseProcessManager):
+    pass
 
-    NODE_TYPE = 'ssn'
 
-
+@nodes.register('edge')
 @six.add_metaclass(abc.ABCMeta)
 class EDGENode(BaseNode, BaseProcessManager, BaseServiceManager):
 
-    ACTION_GET_STATUS = 'get_status'  # Gets all edge related infrastructure status
-    ACTION_RECREATE = 'recreate'  # Recreate broken nodes
-    ACTION_RELOAD_KEYS = 'reload_keys'  # (reupload_key) reload user SSH keys
-
-    ACTIONS = BaseProcessManager.ACTIONS\
-        + BaseServiceManager.ACTIONS\
-        + (ACTION_GET_STATUS, ACTION_RECREATE, ACTION_RELOAD_KEYS)
-
-    NODE_TYPE = 'edge'
-
+    @actions.register(actions.ACTION_GET_STATUS)
     @abc.abstractmethod
     def get_status(self):
         pass
 
+    @actions.register(actions.ACTION_RECREATE)
     @abc.abstractmethod
     def recreate(self):
         pass
 
+    @actions.register(actions.ACTION_RELOAD_KEYS)
     @abc.abstractmethod
     def reload_keys(self):
         pass
 
 
+@nodes.register('notebook')
 @six.add_metaclass(abc.ABCMeta)
 class NotebookNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
-
-    # TODO: rename action 'configure'
-    ACTION_CONFIGURE = 'configure'  # join notebook and cluster
-    # TODO rename action 'git_creds'
-    ACTION_GIT_CREDS = 'git_creds'  # setup git credentials
-
-    ACTIONS = BaseProcessManager.ACTIONS\
-        + BaseServiceManager.ACTIONS\
-        + BaseLibrariesManager.ACTIONS\
-        + (ACTION_CONFIGURE, ACTION_GIT_CREDS)
-
-    NODE_TYPE = 'notebook'
 
     @abc.abstractmethod
     def configure(self):
@@ -175,22 +142,18 @@ class NotebookNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrari
         pass
 
 
+@nodes.register('dataengine')
 @six.add_metaclass(abc.ABCMeta)
 class DataEngineNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
-    ACTIONS = BaseProcessManager.ACTIONS\
-        + BaseServiceManager.ACTIONS\
-        + BaseLibrariesManager.ACTIONS
-
-    NODE_TYPE = 'dataengine'
+    pass
 
 
+@nodes.register('dataengineserver')
 @six.add_metaclass(abc.ABCMeta)
 class DataEngineServerNode(BaseNode, BaseProcessManager, BaseLibrariesManager):
     ACTIONS = BaseProcessManager.ACTIONS\
         + BaseLibrariesManager.ACTIONS\
         + BaseLibrariesManager.ACTIONS
-
-    NODE_TYPE = 'dataengineserver'
 
 
 '''
