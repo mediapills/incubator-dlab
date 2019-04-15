@@ -21,11 +21,11 @@
 import abc
 import six
 
-from dlab.common.nodes.base import NotebookNode
+from dlab.common.nodes.base import BaseNotebookNode
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseNotebookNode(NotebookNode):
+class BaseNotebookNode(BaseNotebookNode):
 
     def run(self):
         pass

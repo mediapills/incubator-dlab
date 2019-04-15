@@ -21,11 +21,11 @@
 import abc
 import six
 
-from dlab.common.nodes.base import EDGENode
+from dlab.common.nodes.base import BaseEDGENode
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseEDGENode(EDGENode):
+class BaseEDGENode(BaseEDGENode):
 
     def run(self):
         pass

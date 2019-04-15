@@ -21,11 +21,11 @@
 import abc
 import six
 
-from dlab.common.nodes.base import SSNNode
+from dlab.common.nodes.base import BaseSSNNode
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseSSNNode(SSNNode):
+class BaseSSNNode(BaseSSNNode):
 
     @abc.abstractmethod
     def run(self):

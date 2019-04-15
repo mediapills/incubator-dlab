@@ -21,11 +21,11 @@
 import abc
 import six
 
-from dlab.common.nodes.base import DataEngineServerNode
+from dlab.common.nodes.base import BaseDataEngineServerNode
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseDataEngineServerNode(DataEngineServerNode):
+class BaseDataEngineServerNode(BaseDataEngineServerNode):
 
     def run(self):
         pass

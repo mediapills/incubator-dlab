@@ -24,20 +24,19 @@
 import abc
 import six
 
-from dlab.common.exceptions import DLabException
-from dlab.common.nodes import actions
-import dlab.common.nodes as nodes
+from dlab.common.nodes import action
+from dlab.common import node
 
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseProcessManager:
 
-    @actions.register(actions.ACTION_RUN)
+    @action.register(action.ACTION_RUN)
     @abc.abstractmethod
     def run(self):
         pass
 
-    @actions.register(actions.ACTION_TERMINATE)
+    @action.register(action.ACTION_TERMINATE)
     @abc.abstractmethod
     def terminate(self):
         pass
@@ -46,12 +45,12 @@ class BaseProcessManager:
 @six.add_metaclass(abc.ABCMeta)
 class BaseServiceManager:
 
-    @actions.register(actions.ACTION_START)
+    @action.register(action.ACTION_START)
     @abc.abstractmethod
     def start(self):
         pass
 
-    @actions.register(actions.ACTION_STOP)
+    @action.register(action.ACTION_STOP)
     @abc.abstractmethod
     def stop(self):
         pass
@@ -60,78 +59,48 @@ class BaseServiceManager:
 @six.add_metaclass(abc.ABCMeta)
 class BaseLibrariesManager:
 
-    @actions.register(actions.ACTION_LIBRARIES_INSTALL)
+    @action.register(action.ACTION_LIBRARIES_INSTALL)
     @abc.abstractmethod
     def libraries_install(self):
         pass
 
-    @actions.register(actions.ACTION_LIBRARIES_SHOW)
+    @action.register(action.ACTION_LIBRARIES_SHOW)
     @abc.abstractmethod
     def libraries_show(self):
         pass
 
 
 @six.add_metaclass(abc.ABCMeta)
-class BaseNode:
-
-    NODE_TYPE = None
-
-    LC_MSG_UNKNOWN_CONSTANT = 'Constant "{name}" needs to be defined'
-    LC_MSG_WRONG_ACTION = '{clsname} does not support action "{action}"'
-
-    @classmethod
-    def get_type(cls):
-        if cls.NODE_TYPE is None:
-            raise DLabException(cls.LC_MSG_UNKNOWN_CONSTANT.format(
-                name='NODE_TYPE'
-            ))
-
-        return cls.NODE_TYPE
-
-    @classmethod
-    def has_action(cls, action):
-        return action in cls.ACTIONS
-
-    def execute(self, action):
-        if not self.has_action(action):
-            raise DLabException(self.LC_MSG_WRONG_ACTION.format(
-                clsname=self.__class__.__name__,
-                action=action
-            ))
-
-        method = getattr(self, action)
-        return method()
-
-
-@nodes.register('ssn')
-@six.add_metaclass(abc.ABCMeta)
-class SSNNode(BaseNode, BaseProcessManager):
+class BaseDataEngineNode(node.BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
     pass
 
 
-@nodes.register('edge')
 @six.add_metaclass(abc.ABCMeta)
-class EDGENode(BaseNode, BaseProcessManager, BaseServiceManager):
+class BaseDataEngineServerNode(node.BaseNode, BaseProcessManager, BaseLibrariesManager):
+    pass
 
-    @actions.register(actions.ACTION_GET_STATUS)
+
+@six.add_metaclass(abc.ABCMeta)
+class BaseEDGENode(node.BaseNode, BaseProcessManager, BaseServiceManager):
+
+    @action.register(action.ACTION_GET_STATUS)
     @abc.abstractmethod
     def get_status(self):
         pass
 
-    @actions.register(actions.ACTION_RECREATE)
+    @action.register(action.ACTION_RECREATE)
     @abc.abstractmethod
     def recreate(self):
         pass
 
-    @actions.register(actions.ACTION_RELOAD_KEYS)
+    @action.register(action.ACTION_RELOAD_KEYS)
     @abc.abstractmethod
     def reload_keys(self):
         pass
 
 
-@nodes.register('notebook')
 @six.add_metaclass(abc.ABCMeta)
-class NotebookNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
+class BaseNotebookNode(node.BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
 
     @abc.abstractmethod
     def configure(self):
@@ -142,46 +111,6 @@ class NotebookNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrari
         pass
 
 
-@nodes.register('dataengine')
 @six.add_metaclass(abc.ABCMeta)
-class DataEngineNode(BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
+class BaseSSNNode(node.BaseNode, BaseProcessManager):
     pass
-
-
-@nodes.register('dataengineserver')
-@six.add_metaclass(abc.ABCMeta)
-class DataEngineServerNode(BaseNode, BaseProcessManager, BaseLibrariesManager):
-    ACTIONS = BaseProcessManager.ACTIONS\
-        + BaseLibrariesManager.ACTIONS\
-        + BaseLibrariesManager.ACTIONS
-
-
-'''
-    @abc.abstractmethod
-    def _get_ssn_deploy_uc(self):
-        pass
-
-    @abc.abstractmethod
-    def _get_ssn_provision_uc(self):
-        pass
-
-    def ssn_run(self):
-        uc = self._get_ssn_deploy_uc()  # type:  BaseUseCaseSSNDeploy
-        try:
-            uc.execute()
-        except DLabException:
-            uc.rollback()  # TODO is it needs to be here ?
-
-        uc = self._get_ssn_provision_uc()  # type:  BaseUseCaseSSNProvision
-        try:
-            uc.execute()
-        except DLabException:
-            uc.rollback()  # TODO is it needs to be here ?
-
-    def ssn_terminate(self):
-        pass
-
-    @abc.abstractmethod
-    def get_ssn_node(self):
-        pass
-'''

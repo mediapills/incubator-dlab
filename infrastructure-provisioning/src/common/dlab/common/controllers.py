@@ -25,7 +25,7 @@ import abc
 import six
 
 from dlab.common.exceptions import DLabException
-from dlab.common.nodes import base as nodes
+from dlab.common import node
 from dlab.common.repositories import ArrayRepository
 
 
@@ -55,6 +55,9 @@ class BaseController:
         ))
 
     def get_node(self, name):
+
+        raise DLabException('in progress')
+
         if name == nodes.DataEngineNode.NODE_TYPE:
             return self.get_data_engine_node()
         elif name == nodes.DataEngineServerNode.NODE_TYPE:
@@ -70,22 +73,23 @@ class BaseController:
                 name=name
             ))
 
-    @abc.abstractmethod
+    @node.register(node.TYPE_DATA_ENGINE_NODE)
+    @abc.abstractproperty
     def get_data_engine_node(self):
         pass
 
-    @abc.abstractmethod
+    @abc.abstractproperty
     def get_data_engine_server_node(self):
         pass
 
-    @abc.abstractmethod
+    @abc.abstractproperty
     def get_edge_node(self):
         pass
 
-    @abc.abstractmethod
+    @abc.abstractproperty
     def get_notebook_node(self):
         pass
 
-    @abc.abstractmethod
+    @abc.abstractproperty
     def get_ssn_node(self):
         pass

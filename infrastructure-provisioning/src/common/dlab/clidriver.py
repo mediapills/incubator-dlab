@@ -26,7 +26,7 @@ import logging
 
 from dlab.common.exceptions import DLabException
 from dlab.common.controllers import BaseController, registry as cls_registry
-from dlab.common.nodes import base as nodes
+from dlab.common import nodes
 from dlab.common.logger import Logger
 
 
@@ -41,13 +41,6 @@ def create_clidriver():
 
 
 class CLIDriver(object):
-    NODES = [
-        nodes.SSNNode.NODE_TYPE,
-        nodes.EDGENode.NODE_TYPE,
-        nodes.NotebookNode.NODE_TYPE,
-        nodes.DataEngineNode.NODE_TYPE,
-        nodes.DataEngineServerNode.NODE_TYPE,
-    ]
 
     def __init__(self):
         self._logger = Logger()
@@ -86,11 +79,14 @@ class CLIDriver(object):
         sys.stderr.write('\n')
 
     def main(self):
-        try:
+        # try:
             ctl = self._get_controller()
             node = self._get_node(ctl)  # type: nodes.BaseNode
             self._execute_node(node)
             return 0
+
+
+"""
         # except UnknownArgumentError as e:
         #     return 255
         except DLabException:
@@ -106,3 +102,4 @@ class CLIDriver(object):
             self._logger.debug("Exception caught in main()")
             self._logger.debug("Exiting with rc 255")
             return 255
+"""

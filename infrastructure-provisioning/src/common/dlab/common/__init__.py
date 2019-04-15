@@ -24,6 +24,7 @@ import dlab.common.controllers                                     # noqa: F401
 import dlab.common.exceptions                                      # noqa: F401
 import dlab.common.logger                                          # noqa: F401
 import dlab.common.managers                                        # noqa: F401
+import dlab.common.node                                            # noqa: F401
 import dlab.common.nodes                                           # noqa: F401
 import dlab.common.repositories                                    # noqa: F401
 import dlab.common.resources                                       # noqa: F401
