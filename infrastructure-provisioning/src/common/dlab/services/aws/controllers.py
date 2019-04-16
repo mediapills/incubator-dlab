@@ -25,11 +25,13 @@ from .nodes.dataengineserver.node import AWSDataEngineServerNode
 from .nodes.edge.node import AWSEDGENode
 from .nodes.notebook.node import AWSNotebookNode
 from .nodes.ssn.node import AWSSSNNode
+from dlab.common import node
 
 
 @controllers.register('aws')
 class AWSController(BaseController):
 
+    @node.register(node.TYPE_DATA_ENGINE_NODE)
     def get_data_engine_node(self):
         self._logger.debug('AWSController.data_engine_node')
         return AWSDataEngineNode()

@@ -27,6 +27,7 @@ import six
 from dlab.common.exceptions import DLabException
 from dlab.common import node
 from dlab.common.repositories import ArrayRepository
+from types import FunctionType
 
 
 registry = ArrayRepository()
@@ -55,6 +56,9 @@ class BaseController:
         ))
 
     def get_node(self, name):
+        print(self.__class__.__name__)
+        cls = self.__class__
+        properties = [i for i in cls.__dict__.keys() if i[:1] != '_']
 
         raise DLabException('in progress')
 

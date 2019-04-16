@@ -36,7 +36,7 @@ def register(key):
     """Register a class as a plug-in"""
     def wrapper(cls):
         # TODO show error if key already exists
-        a = type(cls)
+        a = cls
         registry.append(key, cls.__class__)
         return cls
 

@@ -27,6 +27,20 @@ import six
 from dlab.common.nodes import action
 from dlab.common import node
 
+from dlab.common.repositories import ArrayRepository
+
+registry = ArrayRepository()
+
+
+def register(key):
+    """Register a class as a plug-in"""
+    def wrapper(cls):
+        # TODO show error if key already exists
+        registry.append(key, cls.__name__)
+        return cls
+
+    return wrapper
+
 
 @six.add_metaclass(abc.ABCMeta)
 class BaseProcessManager:
@@ -70,16 +84,19 @@ class BaseLibrariesManager:
         pass
 
 
+@register(node.TYPE_DATA_ENGINE_NODE)
 @six.add_metaclass(abc.ABCMeta)
 class BaseDataEngineNode(node.BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
     pass
 
 
+@register(node.TYPE_DATA_ENGINE_SERVER_NODE)
 @six.add_metaclass(abc.ABCMeta)
 class BaseDataEngineServerNode(node.BaseNode, BaseProcessManager, BaseLibrariesManager):
     pass
 
 
+@register(node.TYPE_EDGE_NODE)
 @six.add_metaclass(abc.ABCMeta)
 class BaseEDGENode(node.BaseNode, BaseProcessManager, BaseServiceManager):
 
@@ -99,6 +116,7 @@ class BaseEDGENode(node.BaseNode, BaseProcessManager, BaseServiceManager):
         pass
 
 
+@register(node.TYPE_NOTEBOOK_NODE)
 @six.add_metaclass(abc.ABCMeta)
 class BaseNotebookNode(node.BaseNode, BaseProcessManager, BaseServiceManager, BaseLibrariesManager):
 
@@ -111,6 +129,7 @@ class BaseNotebookNode(node.BaseNode, BaseProcessManager, BaseServiceManager, Ba
         pass
 
 
+@register(node.TYPE_SSN_NODE)
 @six.add_metaclass(abc.ABCMeta)
 class BaseSSNNode(node.BaseNode, BaseProcessManager):
     pass
