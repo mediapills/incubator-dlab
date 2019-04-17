@@ -24,6 +24,7 @@ import sys
 import signal
 import logging
 
+from dlab.common.argparser import CommandAgrParser, SubCommandAgrParser, HelpCommand
 from dlab.common.exceptions import DLabException
 from dlab.common.controllers import BaseController, registry as cls_registry
 from dlab.common import nodes
@@ -44,6 +45,8 @@ class CLIDriver(object):
 
     def __init__(self):
         self._logger = Logger()
+        self.parser = self._create_parser()
+        self._parsed_args = None
 
     def _get_ctl(self):
         # TODO: implement get option functionality
@@ -56,20 +59,17 @@ class CLIDriver(object):
 
         return ctl
 
-    @staticmethod
-    def _get_node(ctl):
+    def _get_node(self, ctl):
         # TODO: implement get option functionality
-        option = sys.argv[1]
-
+        option = self._parsed_args.command
         # TODO: implement cli help if options not in list
         attr = ctl.get_node(option)
         func = getattr(ctl, attr)
         return func()
 
-    @staticmethod
-    def _run_node(node):
+    def _run_node(self, node):
         # TODO: implement get option functionality
-        action = sys.argv[2]
+        action = self._parsed_args.subcommand
         # TODO: implement cli help if options not in list
 
         result = getattr(node, action)
@@ -80,13 +80,30 @@ class CLIDriver(object):
         sys.stderr.write(msg)
         sys.stderr.write('\n')
 
+    def _create_parser(self):
+        return CommandAgrParser()
+
     def main(self):
         # try:
-            ctl = self._get_ctl()
-            node = self._get_node(ctl)  # type: nodes.BaseNode
+        self._init_parser()
+        ctl = self._get_ctl()
+        node = self._get_node(ctl)  # type: nodes.BaseNode
 
-            return 0
+        return 0
 
+    def _init_parser(self):
+        args = sys.argv[1:]
+        has_help = self.parser.has_help(args)
+        parsed_args, remaining = self.parser.parse_known_args(args)
+        if remaining:
+            sub_parser = SubCommandAgrParser(parsed_args.command)
+            parsed_args, remaining = sub_parser.parse_known_args(args=remaining, namespace=parsed_args)
+
+        if has_help:
+            help = HelpCommand()
+            help(args, parsed_args)
+            sys.exit()
+        self._parsed_args = parsed_args
 
 """
         # except UnknownArgumentError as e:
