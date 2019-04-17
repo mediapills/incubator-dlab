@@ -33,14 +33,17 @@ registry = ArrayRepository()
 
 
 def register(key):
-    """Register a class as a plug-in"""
-    def wrapper(cls):
-        # TODO show error if key already exists
-        a = cls
-        registry.append(key, cls.__class__)
-        return cls
 
-    return wrapper
+    """Register a class as a plug-in"""
+    def decorator(func):
+        name = func.__globals__['__name__']
+        item = registry.find_one(name) or {}
+        item[key] = func.__name__
+        registry.append(name, item)
+
+        return func
+
+    return decorator
 
 
 @six.add_metaclass(abc.ABCMeta)

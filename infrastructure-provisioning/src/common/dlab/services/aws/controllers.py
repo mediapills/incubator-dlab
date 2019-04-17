@@ -36,18 +36,22 @@ class AWSController(BaseController):
         self._logger.debug('AWSController.data_engine_node')
         return AWSDataEngineNode()
 
+    @node.register(node.TYPE_DATA_ENGINE_SERVER_NODE)
     def get_data_engine_server_node(self):
         self._logger.debug('AWSController.data_engine_server_node')
         return AWSDataEngineServerNode()
 
+    @node.register(node.TYPE_EDGE_NODE)
     def get_edge_node(self):
         self._logger.debug('AWSController.edge_node')
         return AWSEDGENode()
 
+    @node.register(node.TYPE_NOTEBOOK_NODE)
     def get_notebook_node(self):
         self._logger.debug('AWSController.notebook_node')
         return AWSNotebookNode()
 
+    @node.register(node.TYPE_SSN_NODE)
     def get_ssn_node(self):
         self._logger.debug('AWSController.ssn_node')
         return AWSSSNNode(logger=self._logger)

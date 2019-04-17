@@ -27,7 +27,6 @@ import six
 from dlab.common.exceptions import DLabException
 from dlab.common import node
 from dlab.common.repositories import ArrayRepository
-from types import FunctionType
 
 
 registry = ArrayRepository()
@@ -58,27 +57,15 @@ class BaseController:
     def get_node(self, name):
         print(self.__class__.__name__)
         cls = self.__class__
-        properties = [i for i in cls.__dict__.keys() if i[:1] != '_']
 
-        raise DLabException('in progress')
+        try:
+            items = node.registry.find_one(cls.__module__)
+            return getattr(self, items[name])()
+        except KeyError as e:
+            raise DLabException(e)
 
-        if name == nodes.DataEngineNode.NODE_TYPE:
-            return self.get_data_engine_node()
-        elif name == nodes.DataEngineServerNode.NODE_TYPE:
-            return self.get_data_engine_server_node()
-        elif name == nodes.EDGENode.NODE_TYPE:
-            return self.get_edge_node()
-        elif name == nodes.NotebookNode.NODE_TYPE:
-            return self.get_notebook_node()
-        elif name == nodes.SSNNode.NODE_TYPE:
-            return self.get_ssn_node()
-        else:
-            DLabException(self.LC_WRONG_NODE.format(
-                name=name
-            ))
-
-    @node.register(node.TYPE_DATA_ENGINE_NODE)
     @abc.abstractproperty
+    @node.register(node.TYPE_DATA_ENGINE_NODE)
     def get_data_engine_node(self):
         pass
 
