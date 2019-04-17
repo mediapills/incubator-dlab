@@ -45,7 +45,7 @@ class CLIDriver(object):
     def __init__(self):
         self._logger = Logger()
 
-    def _get_controller(self):
+    def _get_ctl(self):
         # TODO: implement get option functionality
         option = 'aws'
         # TODO: implement cli help if options not in list
@@ -60,12 +60,14 @@ class CLIDriver(object):
     def _get_node(ctl):
         # TODO: implement get option functionality
         option = sys.argv[1]
-        # TODO: implement cli help if options not in list
 
-        return ctl.get_node(option)
+        # TODO: implement cli help if options not in list
+        attr = ctl.get_node(option)
+        func = getattr(ctl, attr)
+        return func()
 
     @staticmethod
-    def _execute_node(node):
+    def _run_node(node):
         # TODO: implement get option functionality
         action = sys.argv[2]
         # TODO: implement cli help if options not in list
@@ -80,9 +82,9 @@ class CLIDriver(object):
 
     def main(self):
         # try:
-            ctl = self._get_controller()
+            ctl = self._get_ctl()
             node = self._get_node(ctl)  # type: nodes.BaseNode
-            self._execute_node(node)
+
             return 0
 
 

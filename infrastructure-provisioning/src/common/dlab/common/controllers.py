@@ -54,18 +54,15 @@ class BaseController:
             name=self.__class__.__name__
         ))
 
-    def get_node(self, name):
-        print(self.__class__.__name__)
-        cls = self.__class__
-
+    @classmethod
+    def get_node(cls, name):
         try:
             items = node.registry.find_one(cls.__module__)
-            return getattr(self, items[name])()
+            return items[name]
         except KeyError as e:
             raise DLabException(e)
 
     @abc.abstractproperty
-    @node.register(node.TYPE_DATA_ENGINE_NODE)
     def get_data_engine_node(self):
         pass
 
