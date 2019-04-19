@@ -8,7 +8,7 @@ To see help text, you can run:
   {} help
   {} <command> help
   {} <command> <subcommand> help
-""".format(PROJECT_NAME, PROJECT_NAME, PROJECT_NAME)
+""".format(*[PROJECT_NAME] * 3)
 
     COMMAND_NAME = 'command'
     SUB_COMMAND_NAME = 'subcommand'
