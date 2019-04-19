@@ -1,6 +1,21 @@
 
 
 if True:
+    PROJECT_NAME = 'dlab'
+    USAGE = """dlab [options] <command> <subcommand> [parameters],
+To see help text, you can run:
+  
+  {} help
+  {} <command> help
+  {} <command> <subcommand> help
+""".format(*[PROJECT_NAME] * 3)
+
+    COMMAND_NAME = 'command'
+    SUB_COMMAND_NAME = 'subcommand'
+    HELP_KEY = 'help'
+    HELP_FILES_FOLDER = 'examples'
+    HELP_FILE_FORMAT = '.rst'
+    CONCEPTS = '_concepts'
     BASE_ARGUMENTS = {
         '--conf_service_base_name': {
             'help': 'unique name for DLab environment',
