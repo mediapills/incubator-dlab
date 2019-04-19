@@ -75,7 +75,7 @@ class HelpCommand(object):
         return None
 
     def __call__(self, args, parsed_globals):
-        val = """aa"""
+        val = ""
         file_path = self._get_file(parsed_globals)
         if file_path:
             with open(file_path, 'r') as f:

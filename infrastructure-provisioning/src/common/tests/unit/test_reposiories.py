@@ -19,6 +19,7 @@
 #
 # ******************************************************************************
 import abc
+import os
 import sys
 import six
 import unittest
@@ -164,10 +165,12 @@ class TestEnvironRepository(BaseRepositoryTestCase, unittest.TestCase):
 
     @patch.dict('os.environ', MOCK_ENVIRON)
     def test_find_all(self):
+        key = 'key'
         self.repo = repositories.EnvironRepository()
         data = self.repo.find_all()
-
-        self.assertIn('key', data.keys())
+        if sys.platform == 'win32':
+            key = key.upper()
+        self.assertIn(key, data.keys())
 
     def test_find_one_wrong_key(self):
         self.repo = repositories.EnvironRepository()
